@@ -1,0 +1,3051 @@
+<!DOCTYPE html>
+<!-- saved from url=(0074)file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html -->
+<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOAP dans Embabel — Présentation technique</title>
+<style>
+  /* ================================================================
+     PALETTE KEYRUS
+     ================================================================ */
+  :root {
+    --keyrus-red: #DA0127;
+    --keyrus-pink: #FF4591;
+    --keyrus-orange: #FC990F;
+    --keyrus-yellow: #FFC74F;
+    --keyrus-cyan: #25C6FF;
+    --keyrus-black: #0E0E1A;
+    --keyrus-grey: #6B6B7C;
+    --bg-light: #F7F7FA;
+    --bg-code: #1E1E2E;
+    --success: #27AE60;
+    --warning: #F39C12;
+    --danger: #C0392B;
+    --purple: #8E44AD;
+    --blue: #3498DB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--keyrus-black);
+    background: #FFFFFF;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  /* ================================================================
+     LAYOUT "SLIDE" - chaque section = une slide
+     ================================================================ */
+  .slide {
+    min-height: 100vh;
+    padding: 4rem 6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    border-bottom: 1px solid #EEE;
+    page-break-after: always;
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: var(--keyrus-red);
+  }
+
+  .slide::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 6px;
+    height: 60px;
+    background: var(--keyrus-orange);
+  }
+
+  /* NAVIGATION / TABLE OF CONTENTS */
+  nav.toc {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(14, 14, 26, 0.9);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    z-index: 100;
+    max-width: 280px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(8px);
+  }
+
+  nav.toc h4 {
+    color: var(--keyrus-yellow);
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  nav.toc ol {
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  nav.toc li {
+    counter-increment: toc;
+    padding: 0.2rem 0;
+  }
+
+  nav.toc li::before {
+    content: counter(toc) ". ";
+    color: var(--keyrus-orange);
+    font-weight: bold;
+  }
+
+  nav.toc a {
+    color: #E0E0E8;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  nav.toc a:hover {
+    color: var(--keyrus-yellow);
+  }
+
+  /* ================================================================
+     COVER SLIDE
+     ================================================================ */
+  .cover {
+    background: linear-gradient(135deg, var(--keyrus-black) 0%, #1a1a2e 100%);
+    color: white;
+    justify-content: center;
+    padding: 6rem;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    width: 0;
+  }
+
+  .cover::after {
+    top: auto;
+    bottom: 0;
+    height: 6px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--keyrus-red), var(--keyrus-pink), var(--keyrus-orange));
+  }
+
+  .cover-decorations {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .cover-decorations .circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.18;
+  }
+
+  .cover-decorations .c1 {
+    width: 320px; height: 320px;
+    background: var(--keyrus-red);
+    top: -80px; right: -80px;
+  }
+
+  .cover-decorations .c2 {
+    width: 200px; height: 200px;
+    background: var(--keyrus-orange);
+    top: 200px; right: 80px;
+    opacity: 0.22;
+  }
+
+  .cover-decorations .c3 {
+    width: 160px; height: 160px;
+    background: var(--keyrus-cyan);
+    bottom: 180px; right: 240px;
+    opacity: 0.15;
+  }
+
+  .cover-logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--keyrus-red);
+    letter-spacing: -1px;
+    margin-bottom: 0.3rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-logo::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--keyrus-orange);
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: bottom;
+    margin-bottom: 8px;
+  }
+
+  .cover-tagline {
+    color: var(--keyrus-yellow);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover h1 {
+    font-size: 4.5rem;
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover h1 .accent {
+    color: var(--keyrus-red);
+  }
+
+  .cover .subtitle {
+    font-size: 1.4rem;
+    color: #D0D0DC;
+    font-weight: 300;
+    margin-bottom: 0.8rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover .lead {
+    font-size: 1rem;
+    color: #A0A0B0;
+    max-width: 640px;
+    margin-top: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-meta {
+    position: absolute;
+    left: 6rem;
+    bottom: 3rem;
+    font-size: 0.9rem;
+    z-index: 2;
+  }
+
+  .cover-meta .author {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+
+  .cover-meta .role {
+    color: var(--keyrus-yellow);
+    font-size: 0.85rem;
+  }
+
+  .cover-meta .date {
+    color: #707084;
+    font-size: 0.8rem;
+    margin-top: 0.6rem;
+  }
+
+  /* ================================================================
+     TYPOGRAPHIE
+     ================================================================ */
+  h2 {
+    color: var(--keyrus-red);
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  h2 .num {
+    color: var(--keyrus-orange);
+    font-size: 1.2rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.3rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    color: var(--keyrus-black);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-top: 1.6rem;
+    margin-bottom: 0.7rem;
+  }
+
+  h4 {
+    color: var(--keyrus-grey);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  p {
+    margin-bottom: 0.9rem;
+    color: #2a2a3a;
+  }
+
+  ul, ol {
+    margin-left: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  li {
+    margin-bottom: 0.4rem;
+    color: #2a2a3a;
+  }
+
+  strong {
+    color: var(--keyrus-black);
+  }
+
+  em {
+    color: var(--keyrus-grey);
+  }
+
+  .lead {
+    font-size: 1.15rem;
+    color: var(--keyrus-grey);
+    max-width: 820px;
+    margin-bottom: 2rem;
+    line-height: 1.55;
+  }
+
+  /* ================================================================
+     BLOCS SPÉCIAUX
+     ================================================================ */
+  .callout {
+    background: #FFF0F3;
+    border-left: 4px solid var(--keyrus-red);
+    padding: 1.1rem 1.4rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+    color: var(--keyrus-black);
+  }
+
+  .callout.tip {
+    background: #FFFDE7;
+    border-left-color: var(--keyrus-orange);
+  }
+
+  .callout.warning {
+    background: #FFF3E0;
+    border-left-color: var(--warning);
+  }
+
+  .callout strong:first-child {
+    color: var(--keyrus-red);
+  }
+
+  .key-fact {
+    background: linear-gradient(135deg, #FFF0F3 0%, #FFE4EC 100%);
+    padding: 1.5rem 1.8rem;
+    border-radius: 8px;
+    border: 2px solid var(--keyrus-red);
+    margin: 1.8rem 0;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--keyrus-black);
+  }
+
+  /* ================================================================
+     CODE
+     ================================================================ */
+  pre {
+    background: var(--bg-code);
+    color: #E8E8F0;
+    padding: 1.2rem 1.4rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 1rem 0 1.5rem;
+    border-left: 3px solid var(--keyrus-red);
+  }
+
+  pre code .kw { color: #FF79C6; }
+  pre code .an { color: var(--keyrus-orange); }
+  pre code .st { color: #50FA7B; }
+  pre code .cm { color: #6272A4; font-style: italic; }
+  pre code .ty { color: var(--keyrus-cyan); }
+  pre code .nb { color: #BD93F9; }
+
+  code.inline {
+    background: #F0F0F7;
+    color: var(--keyrus-red);
+    padding: 0.12em 0.4em;
+    border-radius: 3px;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88em;
+  }
+
+  /* ================================================================
+     TABLES
+     ================================================================ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.8rem;
+    font-size: 0.92rem;
+  }
+
+  th {
+    background: var(--keyrus-red);
+    color: white;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #E8E8EE;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td {
+    background: #FAFAFC;
+  }
+
+  tr:hover td {
+    background: #FFF0F3;
+  }
+
+  .win { color: var(--success); font-weight: 700; }
+  .lose { color: var(--danger); }
+  .neutral { color: var(--warning); }
+
+  /* ================================================================
+     GRID UTILITIES
+     ================================================================ */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 1rem 0 1.8rem;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1rem 0 1.8rem;
+  }
+
+  .card {
+    background: #FAFAFC;
+    padding: 1.4rem;
+    border-radius: 8px;
+    border-top: 3px solid var(--keyrus-red);
+  }
+
+  .card h5 {
+    color: var(--keyrus-red);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .card p {
+    font-size: 0.92rem;
+    color: var(--keyrus-grey);
+    margin: 0;
+  }
+
+  /* ================================================================
+     SCHÉMAS SVG
+     ================================================================ */
+  figure {
+    margin: 1.5rem 0 2rem;
+    text-align: center;
+  }
+
+  figure svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    background: #FAFAFC;
+    border-radius: 8px;
+    padding: 1.2rem;
+  }
+
+  figcaption {
+    font-size: 0.88rem;
+    color: var(--keyrus-grey);
+    font-style: italic;
+    margin-top: 0.6rem;
+    max-width: 820px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Couleurs spécifiques scenarios */
+  .scenario-header {
+    padding: 0.7rem 1.2rem;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    margin: 1.5rem 0 1rem;
+    font-size: 1.05rem;
+  }
+
+  .sc-a { background: var(--success); }
+  .sc-b { background: var(--warning); }
+  .sc-c { background: var(--blue); }
+  .sc-d { background: var(--purple); }
+  .sc-e { background: var(--danger); }
+
+  /* ================================================================
+     FOOTER
+     ================================================================ */
+  footer.slide-footer {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 6rem;
+    right: 6rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--keyrus-grey);
+    padding-top: 0.8rem;
+    border-top: 1px solid #EEE;
+  }
+
+  footer.slide-footer .brand {
+    color: var(--keyrus-red);
+    font-weight: 600;
+  }
+
+  /* ================================================================
+     IMPRESSION (PDF)
+     ================================================================ */
+  @media print {
+    nav.toc { display: none; }
+    .slide { page-break-after: always; min-height: auto; padding: 2cm; }
+    body { font-size: 11pt; }
+  }
+
+  /* ================================================================
+     RESPONSIVE
+     ================================================================ */
+  @media (max-width: 1100px) {
+    nav.toc { display: none; }
+    .slide { padding: 3rem 2rem; }
+    .cover h1 { font-size: 3rem; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    footer.slide-footer { left: 2rem; right: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====================================================================
+     NAVIGATION
+     ==================================================================== -->
+<nav class="toc">
+  <h4>Sommaire</h4>
+  <ol>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#intro">Introduction</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#bases">Les bases de GOAP</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#comparison">Classique vs GOAP</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#cas">Cas d'usage</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#v1">V1 — Agent minimal</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#v2">V2 — Trois chemins</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#v3">V3 — Coûts différenciants</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#v4">V4 — Complexité métier</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#v5">V5 — Adaptativité</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#value">Value des goals</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#dynamic">Pièges &amp; architecture</a></li>
+    <li><a href="file:///C:/Users/Guillaume.Ettori/Downloads/goap_embabel_presentation.html#conclusion">Conclusion</a></li>
+  </ol>
+</nav>
+
+<!-- ====================================================================
+     SLIDE 1 : COVER
+     ==================================================================== -->
+<section class="slide cover">
+  <div class="cover-decorations">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+  </div>
+
+  <div class="cover-logo">keyrus</div>
+  <div class="cover-tagline">Tech Lead Insights / Gen AI Architecture</div>
+
+  <h1>GOAP dans <span class="accent">Embabel</span></h1>
+  <p class="subtitle">Présentation technique du planificateur Goal-Oriented Action Planning</p>
+  <p class="lead">
+    Du workflow rigide au planificateur adaptatif. Cas d'usage complet, cinq scénarios
+    d'exécution, analyse des coûts et values, et positionnement d'Embabel face aux
+    alternatives du marché.
+  </p>
+
+  <div class="cover-meta">
+    <div class="author">Guillaume Ettori</div>
+    <div class="role">Architecte · Tech Lead Digital / Gen AI — Keyrus</div>
+    <div class="date">Avril 2026</div>
+  </div>
+</section>
+
+<!-- ====================================================================
+     SLIDE 2 : INTRODUCTION
+     ==================================================================== -->
+<section class="slide" id="intro">
+  <h2><span class="num">Introduction</span>Objectifs de la présentation</h2>
+
+  <p class="lead">
+    Embabel est un framework agentic JVM lancé par Rod Johnson, le créateur de Spring.
+    Sa particularité : un planificateur déterministe GOAP qui calcule dynamiquement le
+    chemin d'exécution d'un agent, au lieu de forcer le développeur à dessiner lui-même
+    le graphe.
+  </p>
+
+  <h3>Ce que cette présentation couvre</h3>
+  <ul>
+    <li>Les <strong>fondamentaux de GOAP</strong> (origine, concepts, boucle OODA).</li>
+    <li>La <strong>différence structurelle</strong> entre l'approche classique (state machine, LangGraph) et l'approche GOAP.</li>
+    <li>Un <strong>cas d'usage complet</strong> — traitement agentic d'un sinistre automobile — décliné en trois versions progressives.</li>
+    <li>Les mécanismes fins : <strong>coûts statiques, coûts dynamiques, values des goals</strong>, avec leurs cas d'usage respectifs.</li>
+    <li><strong>Cinq scénarios d'exécution</strong> illustrant la diversité de comportements produits par un même code.</li>
+    <li>L'<strong>architecture de production</strong> et les avantages décisifs d'Embabel pour l'IA agentic d'entreprise.</li>
+  </ul>
+
+  <h3>Public visé</h3>
+  <p>
+    Architectes, tech leads et développeurs impliqués dans des projets agentic d'entreprise.
+    La connaissance préalable d'Embabel n'est pas requise. Une expérience Java ou Spring
+    facilite la lecture du code mais n'est pas bloquante.
+  </p>
+
+  <div class="callout">
+    <strong>Remarque.</strong> Ce document présente une analyse technique argumentée et
+    une recommandation. Les choix de stack dépendent du contexte de chaque projet —
+    équipe, client, contraintes régulatoires, durée de vie de l'application.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>2 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 3 : LES BASES DE GOAP
+     ==================================================================== -->
+<section class="slide" id="bases">
+  <h2><span class="num">01</span>Les bases de GOAP</h2>
+
+  <p class="lead">
+    GOAP signifie <strong>Goal-Oriented Action Planning</strong>. Ses racines
+    théoriques remontent à <strong>STRIPS</strong> (Stanford Research Institute
+    Problem Solver), un planificateur symbolique développé au SRI en 1971 pour la
+    recherche en intelligence artificielle. STRIPS introduit les concepts d'actions
+    typées avec préconditions et effets, et de recherche de plan par pathfinding.
+  </p>
+
+  <p>
+    GOAP est une <strong>simplification de STRIPS adaptée pour le temps réel</strong>,
+    popularisée par Jeff Orkin au MIT Media Lab pour l'IA du jeu F.E.A.R. (Monolith,
+    2005). L'implémentation de F.E.A.R. a démontré qu'un planificateur déterministe
+    pouvait produire des comportements perçus comme intelligents à partir d'un
+    catalogue d'actions typées, là où les arbres de comportement traditionnels
+    montraient leurs limites. Embabel reprend ce même paradigme et l'applique à
+    l'orchestration d'agents LLM.
+  </p>
+
+  <h3>Les cinq concepts fondamentaux</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>Rôle</th>
+        <th>En Embabel</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Action</strong></td>
+        <td>Étape que l'agent sait exécuter, avec préconditions et effets typés.</td>
+        <td>Méthode annotée <code class="inline">@Action</code></td>
+      </tr>
+      <tr>
+        <td><strong>Goal</strong></td>
+        <td>Résultat métier à atteindre. Un état, pas une étape.</td>
+        <td><code class="inline">@AchievesGoal</code> sur une action terminale</td>
+      </tr>
+      <tr>
+        <td><strong>Condition</strong></td>
+        <td>Prédicat booléen sur l'état courant, réévalué après chaque action.</td>
+        <td><code class="inline">@Condition</code> retournant un boolean</td>
+      </tr>
+      <tr>
+        <td><strong>Blackboard</strong></td>
+        <td>Mémoire typée partagée contenant tous les objets produits.</td>
+        <td>Géré automatiquement par le framework</td>
+      </tr>
+      <tr>
+        <td><strong>Plan</strong></td>
+        <td>Séquence d'actions calculée par A*, recalculée après chaque étape.</td>
+        <td>Implicite, jamais écrit par le développeur</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>La boucle OODA — le cycle d'exécution</h3>
+
+  <figure>
+    <svg viewBox="0 0 500 260" width="620">
+      <!-- Cercles OODA -->
+      <g font-family="Helvetica" font-weight="bold">
+        <!-- Centre -->
+        <circle cx="250" cy="130" r="42" fill="#DA0127" opacity="0.08"></circle>
+        <text x="250" y="128" font-size="13" fill="#DA0127" text-anchor="middle" font-weight="700">À chaque</text>
+        <text x="250" y="144" font-size="13" fill="#DA0127" text-anchor="middle" font-weight="700">cycle</text>
+
+        <!-- OBSERVE -->
+        <rect x="200" y="30" width="100" height="40" rx="6" fill="#25C6FF"></rect>
+        <text x="250" y="50" font-size="12" fill="white" text-anchor="middle">OBSERVE</text>
+        <text x="250" y="63" font-size="9" fill="white" text-anchor="middle" font-weight="400">Lire le blackboard</text>
+
+        <!-- ORIENT -->
+        <rect x="370" y="110" width="100" height="40" rx="6" fill="#16A085"></rect>
+        <text x="420" y="130" font-size="12" fill="white" text-anchor="middle">ORIENT</text>
+        <text x="420" y="143" font-size="9" fill="white" text-anchor="middle" font-weight="400">Évaluer conditions</text>
+
+        <!-- DECIDE -->
+        <rect x="200" y="190" width="100" height="40" rx="6" fill="#FC990F"></rect>
+        <text x="250" y="210" font-size="12" fill="white" text-anchor="middle">DECIDE</text>
+        <text x="250" y="223" font-size="9" fill="white" text-anchor="middle" font-weight="400">Calculer plan A*</text>
+
+        <!-- ACT -->
+        <rect x="30" y="110" width="100" height="40" rx="6" fill="#27AE60"></rect>
+        <text x="80" y="130" font-size="12" fill="white" text-anchor="middle">ACT</text>
+        <text x="80" y="143" font-size="9" fill="white" text-anchor="middle" font-weight="400">Exécuter action</text>
+
+        <!-- Flèches courbes circulaires entre les 4 boîtes -->
+        <defs>
+          <marker id="arrow-dark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+          </marker>
+        </defs>
+
+        <!-- Observe -> Orient -->
+        <path d="M 300 60 Q 380 70 390 110" fill="none" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-dark)"></path>
+        <!-- Orient -> Decide -->
+        <path d="M 390 150 Q 380 190 300 200" fill="none" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-dark)"></path>
+        <!-- Decide -> Act -->
+        <path d="M 200 200 Q 120 190 110 150" fill="none" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-dark)"></path>
+        <!-- Act -> Observe -->
+        <path d="M 110 110 Q 120 70 200 60" fill="none" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-dark)"></path>
+      </g>
+    </svg>
+    <figcaption>Schéma 1 — La boucle OODA d'Embabel. Le plan est recalculé après
+      chaque action, ce qui permet une adaptation naturelle aux résultats intermédiaires.</figcaption>
+  </figure>
+
+  <div class="key-fact">
+    La conséquence majeure de la boucle OODA : <strong>le plan peut changer en cours
+    d'exécution</strong> sans qu'aucune règle de routage impérative ne soit écrite.
+    Si une condition bascule ou qu'une action retourne un résultat inattendu, le
+    planificateur recompose automatiquement le reste du chemin.
+  </div>
+
+  <h3>La fonction objectif</h3>
+
+  <pre><code>score_du_plan = value_du_goal − coût_total_du_chemin</code></pre>
+
+  <p>
+    Le planificateur cherche le plan qui <strong>maximise ce score</strong>. Cette
+    formule est centrale pour comprendre tous les mécanismes décrits dans la suite
+    de la présentation.
+  </p>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>3 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 4 : COMPARAISON VISUELLE
+     ==================================================================== -->
+<section class="slide" id="comparison">
+  <h2><span class="num">02</span>Classique vs GOAP — la différence visuelle</h2>
+
+  <p class="lead">
+    Le schéma suivant résume la différence fondamentale entre une approche classique
+    (state machine, LangGraph) et l'approche GOAP. À gauche, le développeur dessine
+    lui-même chaque arête du graphe. À droite, les actions sont déclarées
+    indépendamment et le graphe d'exécution est <strong>calculé à la demande</strong>
+    par l'algorithme.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 900 360" width="900">
+      <defs>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+        </marker>
+        <marker id="arrow-success" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#27AE60"></path>
+        </marker>
+      </defs>
+
+      <!-- CÔTÉ GAUCHE : State Machine classique -->
+      <text x="210" y="30" font-size="15" font-weight="700" fill="#0E0E1A" text-anchor="middle">Approche classique</text>
+      <text x="210" y="50" font-size="11" fill="#6B6B7C" text-anchor="middle" font-style="italic">Le développeur dessine le graphe</text>
+
+      <!-- Nœuds state machine -->
+      <g font-family="Helvetica" font-size="11" font-weight="600">
+        <rect x="50" y="80" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="90" y="100" fill="white" text-anchor="middle">Start</text>
+
+        <rect x="170" y="80" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="210" y="100" fill="white" text-anchor="middle">Step 1</text>
+
+        <rect x="290" y="80" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="330" y="100" fill="white" text-anchor="middle">Step 2</text>
+
+        <rect x="170" y="150" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="210" y="170" fill="white" text-anchor="middle">Alt 1</text>
+
+        <rect x="290" y="150" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="330" y="170" fill="white" text-anchor="middle">Alt 2</text>
+
+        <rect x="170" y="220" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="210" y="240" fill="white" text-anchor="middle">Step 3</text>
+
+        <rect x="170" y="290" width="80" height="32" rx="4" fill="#95A5A6"></rect>
+        <text x="210" y="310" fill="white" text-anchor="middle">End</text>
+      </g>
+
+      <!-- Arêtes state machine (fixes, dessinées à la main) -->
+      <g stroke="#0E0E1A" stroke-width="1.2" fill="none">
+        <line x1="130" y1="96" x2="170" y2="96" marker-end="url(#arrow2)"></line>
+        <line x1="250" y1="96" x2="290" y2="96" marker-end="url(#arrow2)"></line>
+        <line x1="210" y1="112" x2="210" y2="150" marker-end="url(#arrow2)"></line>
+        <line x1="330" y1="112" x2="330" y2="150" marker-end="url(#arrow2)"></line>
+        <line x1="330" y1="166" x2="250" y2="166" stroke-dasharray="3 2"></line>
+        <line x1="210" y1="182" x2="210" y2="220" marker-end="url(#arrow2)"></line>
+        <line x1="330" y1="182" x2="250" y2="220" marker-end="url(#arrow2)"></line>
+        <line x1="210" y1="252" x2="210" y2="290" marker-end="url(#arrow2)"></line>
+      </g>
+
+      <text x="210" y="350" font-size="10" fill="#C0392B" text-anchor="middle" font-style="italic">
+        Chaque arête est écrite manuellement dans le code
+      </text>
+
+      <!-- Séparateur -->
+      <line x1="470" y1="60" x2="470" y2="340" stroke="#E0E0E8" stroke-width="1"></line>
+
+      <!-- CÔTÉ DROIT : GOAP Embabel -->
+      <text x="690" y="30" font-size="15" font-weight="700" fill="#0E0E1A" text-anchor="middle">Approche GOAP (Embabel)</text>
+      <text x="690" y="50" font-size="11" fill="#6B6B7C" text-anchor="middle" font-style="italic">L'algorithme calcule le chemin à la volée</text>
+
+      <!-- Actions en "vrac" (catalogue) -->
+      <g font-family="Helvetica" font-size="10" font-weight="600">
+        <rect x="510" y="80" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="550" y="100" fill="white" text-anchor="middle">Action A</text>
+
+        <rect x="610" y="80" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="650" y="100" fill="white" text-anchor="middle">Action B</text>
+
+        <rect x="710" y="80" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="750" y="100" fill="white" text-anchor="middle">Action C</text>
+
+        <rect x="810" y="80" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="850" y="100" fill="white" text-anchor="middle">Action D</text>
+
+        <rect x="560" y="130" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="600" y="150" fill="white" text-anchor="middle">Action E</text>
+
+        <rect x="660" y="130" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="700" y="150" fill="white" text-anchor="middle">Action F</text>
+
+        <rect x="760" y="130" width="80" height="32" rx="4" fill="#25C6FF"></rect>
+        <text x="800" y="150" fill="white" text-anchor="middle">Action G</text>
+      </g>
+
+      <!-- GOAL -->
+      <rect x="650" y="220" width="80" height="35" rx="4" fill="#FC990F"></rect>
+      <text x="690" y="243" font-size="13" fill="white" text-anchor="middle" font-weight="700">GOAL</text>
+
+      <!-- Plan calculé par A* (flèche courbe en pointillés) -->
+      <path d="M 550 112 Q 590 180 690 220" fill="none" stroke="#27AE60" stroke-width="2.5" stroke-dasharray="5 3" marker-end="url(#arrow-success)"></path>
+      <path d="M 650 112 Q 680 165 690 220" fill="none" stroke="#27AE60" stroke-width="2.5" stroke-dasharray="5 3"></path>
+
+      <text x="690" y="285" font-size="11" fill="#27AE60" text-anchor="middle" font-weight="700">
+        Plan calculé par A* : A → B → GOAL
+      </text>
+      <text x="690" y="305" font-size="10" fill="#27AE60" text-anchor="middle" font-style="italic">
+        Actions déclarées séparément
+      </text>
+      <text x="690" y="320" font-size="10" fill="#27AE60" text-anchor="middle" font-style="italic">
+        Chemin calculé au runtime, recalculé à chaque étape
+      </text>
+    </svg>
+    <figcaption>Schéma 2 — À gauche, l'approche classique où le développeur dessine
+      le graphe. À droite, l'approche GOAP où l'algorithme le calcule pour chaque
+      requête.</figcaption>
+  </figure>
+
+  <h3>Conséquence sur l'évolutivité</h3>
+
+  <div class="grid-2">
+    <div class="card">
+      <h5>State machine</h5>
+      <p>Ajouter une action implique de modifier les arêtes existantes, relire toutes
+      les conditions de routage, et retester l'ensemble des chemins. Le coût de
+      maintenance croît de façon quadratique.</p>
+    </div>
+    <div class="card">
+      <h5>GOAP Embabel</h5>
+      <p>Ajouter une action consiste à créer un nouveau bean annoté. Le planificateur
+      l'intègre automatiquement à sa recherche. Aucune ligne des actions existantes
+      n'est modifiée.</p>
+    </div>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>4 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 5 : CAS D'USAGE
+     ==================================================================== -->
+<section class="slide" id="cas">
+  <h2><span class="num">03</span>Le cas d'usage : sinistre automobile</h2>
+
+  <p class="lead">
+    L'ensemble de la présentation s'appuie sur un cas d'usage réaliste : le
+    traitement agentic d'un sinistre automobile pour un assureur. Chaque sinistre
+    est unique — matériel ou corporel, avec ou sans tiers, montants variables,
+    signaux de fraude possibles.
+  </p>
+
+  <h3>L'objectif métier</h3>
+
+  <p>
+    L'agent doit aboutir à une <strong>décision</strong> selon l'un des trois
+    verdicts possibles :
+  </p>
+
+  <div class="grid-3">
+    <div class="card" style="border-top-color: var(--success);">
+      <h5 style="color: var(--success);">Auto-approbation</h5>
+      <p>Sinistre de faible montant, sans signal de fraude, couvert par la police.
+      Indemnisation immédiate sans intervention humaine.</p>
+    </div>
+    <div class="card" style="border-top-color: var(--warning);">
+      <h5 style="color: var(--warning);">Revue humaine</h5>
+      <p>Sinistre dont le montant dépasse le seuil d'auto-approbation. Transfert
+      à un ajusteur senior avec le contexte complet.</p>
+    </div>
+    <div class="card" style="border-top-color: var(--danger);">
+      <h5 style="color: var(--danger);">Escalade fraude</h5>
+      <p>Score de fraude élevé détecté pendant l'analyse. Transfert prioritaire à
+      la cellule anti-fraude avec tous les signaux.</p>
+    </div>
+  </div>
+
+  <h3>Approche en cinq versions progressives</h3>
+
+  <ol>
+    <li><strong>Version 1 — Agent minimal.</strong> Un seul chemin linéaire, aucune
+      branche. Objectif : poser la syntaxe Embabel sans complexité.</li>
+    <li><strong>Version 2 — Trois chemins terminaux.</strong> Plusieurs
+      <code class="inline">@AchievesGoal</code> avec préconditions mutuellement
+      exclusives. Introduction des goals multiples.</li>
+    <li><strong>Version 3 — Actions interchangeables.</strong> Plusieurs façons de
+      produire un même résultat avec des coûts différents. Le planificateur GOAP
+      commence à arbitrer économiquement.</li>
+    <li><strong>Version 4 — Complexité métier.</strong> Ajout d'actions contextuelles
+      conditionnelles (tiers, cas corporel), d'une boucle via
+      <code class="inline">@State</code>, et d'un chemin de résolution amiable.
+      Illustre la cohabitation de GOAP avec d'autres patterns de contrôle.</li>
+    <li><strong>Version 5 — Adaptativité opérationnelle.</strong> Coûts et values
+      dynamiques calculés au runtime selon la charge système, le profil client et
+      les contraintes contractuelles. <strong>Le même code produit des comportements
+      différents selon le contexte d'exécution.</strong></li>
+  </ol>
+
+  <h3>Les types du domaine</h3>
+
+  <p>Les records Java qui modélisent les entités métier. Chaque type présent sur
+  le blackboard débloque certaines actions.</p>
+
+<pre><code><span class="kw">public record</span> <span class="ty">ClaimReport</span>(String id, String description, List&lt;String&gt; photoUrls,
+                         LocalDate dateOfIncident, <span class="kw">boolean</span> hasInjury,
+                         BigDecimal claimedAmount) {}
+
+<span class="kw">public record</span> <span class="ty">Policy</span>(String number, BigDecimal coverage, BigDecimal deductible,
+                     List&lt;String&gt; exclusions, PolicyStatus status) {}
+
+<span class="kw">public record</span> <span class="ty">PolicyValidation</span>(<span class="kw">boolean</span> valid, List&lt;String&gt; reasons) {}
+
+<span class="cm">// Type central : plusieurs actions produiront ce type (version 3)</span>
+<span class="kw">public record</span> <span class="ty">DamageEstimate</span>(BigDecimal estimatedCost, List&lt;String&gt; damagedParts,
+                              <span class="kw">double</span> confidence, EstimationSource source) {}
+
+<span class="kw">public enum</span> <span class="ty">EstimationSource</span> { HEURISTIC, GARAGIST, VISION_LLM, EXPERT_HUMAN }
+
+<span class="kw">public record</span> <span class="ty">FraudScore</span>(<span class="kw">double</span> probability, List&lt;String&gt; signals) {}
+<span class="kw">public record</span> <span class="ty">MedicalAssessment</span>(BigDecimal estimatedCost, Severity severity) {}
+<span class="kw">public record</span> <span class="ty">ClaimDecision</span>(Decision outcome, BigDecimal amount, String reasoning) {}</code></pre>
+
+  <div class="callout tip">
+    <strong>À noter.</strong> Le champ <code class="inline">confidence</code> sur
+    <code class="inline">DamageEstimate</code> permettra de déclencher du raffinement
+    automatique lorsqu'une première estimation est jugée trop incertaine. Ce pattern
+    est détaillé dans la version 3.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>5 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 6 : VERSION 1
+     ==================================================================== -->
+<section class="slide" id="v1">
+  <h2><span class="num">04</span>Version 1 — L'agent minimal</h2>
+
+  <p class="lead">
+    Version la plus simple possible : un seul chemin, aucune branche. Elle permet
+    d'introduire la syntaxe Embabel sans complexité supplémentaire.
+  </p>
+
+<pre><code><span class="an">@Agent</span>(description = <span class="st">"Traitement minimal de sinistre auto"</span>)
+<span class="kw">public class</span> <span class="ty">MinimalClaimAgent</span> {
+
+  <span class="an">@Action</span>
+  <span class="kw">public</span> <span class="ty">Policy</span> fetchPolicy(ClaimReport c, PolicyRepository repo) {
+    <span class="kw">return</span> repo.findByClaimant(c.id());
+  }
+
+  <span class="an">@Action</span>
+  <span class="kw">public</span> <span class="ty">DamageEstimate</span> analyzePhotos(ClaimReport c, AI ai) {
+    <span class="kw">return</span> ai.withDefaultLlm()
+             .creating(DamageEstimate.<span class="kw">class</span>)
+             .fromPrompt(<span class="st">"Assess damage from photos: "</span> + c.photoUrls());
+  }
+
+  <span class="an">@Action</span>
+  <span class="an">@AchievesGoal</span>(description = <span class="st">"Sinistre traité"</span>)
+  <span class="kw">public</span> <span class="ty">ClaimDecision</span> decide(Policy p, DamageEstimate d, ClaimReport c) {
+    BigDecimal payout = d.estimatedCost().subtract(p.deductible());
+    <span class="kw">return new</span> ClaimDecision(Decision.APPROVED, payout.max(BigDecimal.ZERO),
+                              <span class="st">"Basic decision based on photos"</span>);
+  }
+}</code></pre>
+
+  <h3>Le plan inféré par le planificateur</h3>
+
+  <figure>
+    <svg viewBox="0 0 620 220" width="620">
+      <defs>
+        <marker id="arrow-dark2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+        </marker>
+      </defs>
+
+      <g font-family="Helvetica" font-size="12" font-weight="600">
+        <!-- Input -->
+        <rect x="250" y="20" width="120" height="38" rx="5" fill="#3498DB"></rect>
+        <text x="310" y="44" fill="white" text-anchor="middle">ClaimReport</text>
+
+        <!-- Actions parallèles -->
+        <rect x="80" y="100" width="130" height="38" rx="5" fill="#16A085"></rect>
+        <text x="145" y="124" fill="white" text-anchor="middle">fetchPolicy</text>
+
+        <rect x="410" y="100" width="130" height="38" rx="5" fill="#16A085"></rect>
+        <text x="475" y="124" fill="white" text-anchor="middle">analyzePhotos</text>
+
+        <!-- Goal -->
+        <rect x="250" y="180" width="120" height="38" rx="5" fill="#27AE60"></rect>
+        <text x="310" y="204" fill="white" text-anchor="middle">decide ✓</text>
+      </g>
+
+      <!-- Flèches -->
+      <g stroke="#0E0E1A" stroke-width="1.5" fill="none">
+        <line x1="280" y1="58" x2="160" y2="100" marker-end="url(#arrow-dark2)"></line>
+        <line x1="340" y1="58" x2="460" y2="100" marker-end="url(#arrow-dark2)"></line>
+        <line x1="160" y1="138" x2="280" y2="180" marker-end="url(#arrow-dark2)"></line>
+        <line x1="460" y1="138" x2="340" y2="180" marker-end="url(#arrow-dark2)"></line>
+      </g>
+
+      <!-- Annotation parallélisme -->
+      <text x="310" y="165" font-size="11" fill="#FC990F" text-anchor="middle" font-style="italic" font-weight="600">
+        Parallélisation automatique
+      </text>
+    </svg>
+    <figcaption>Schéma 3 — Plan inféré pour la version 1. <code>fetchPolicy</code>
+      et <code>analyzePhotos</code> étant indépendants, Embabel les exécute
+      automatiquement en parallèle.</figcaption>
+  </figure>
+
+  <div class="callout tip">
+    <strong>Parallélisation implicite.</strong> Les deux actions intermédiaires n'ont
+    aucune dépendance de types entre elles : aucune ne consomme la sortie de l'autre.
+    Embabel les exécute en parallèle <em>automatiquement</em>, sans
+    <code class="inline">CompletableFuture</code> ni configuration.
+  </div>
+
+  <h3>Limites de cette version</h3>
+
+  <ul>
+    <li>Tous les sinistres empruntent le même chemin quelle que soit leur nature.</li>
+    <li>Aucune détection de fraude, aucune gestion du tiers, aucun cas corporel.</li>
+    <li>L'analyse photo est systématique, même pour des sinistres de faible montant.</li>
+    <li>Les coûts et values n'ont pas d'influence : un seul plan est possible.</li>
+  </ul>
+
+  <p>
+    Cette version reproduit un workflow linéaire classique. Elle ne tire aucun
+    bénéfice de la capacité de planification. La version 2 introduit la multiplicité
+    des chemins.
+  </p>
+
+  <h3>Scénario d'illustration</h3>
+
+  <div class="scenario-header sc-a">SCÉNARIO V1 — Sinistre matériel basique</div>
+
+  <div class="grid-2">
+    <div>
+      <h4>Entrée</h4>
+<pre style="font-size: 0.72rem;"><code>ClaimReport {
+  description   : "Choc à l'arrière"
+  hasInjury     : false
+  claimedAmount : 2 500 €
+  photoUrls     : [p1.jpg, p2.jpg]
+}</code></pre>
+      <h4>Plan inféré</h4>
+<pre style="font-size: 0.72rem;"><code>fetchPolicy ∥ analyzePhotos
+  → decide ✓
+
+Une seule trajectoire possible.</code></pre>
+    </div>
+    <div>
+      <h4>Ce que ce scénario démontre</h4>
+      <ul style="font-size: 0.92rem;">
+        <li><strong>Parallélisme implicite</strong> : <code class="inline">fetchPolicy</code>
+        et <code class="inline">analyzePhotos</code> n'ayant aucune dépendance de
+        types, Embabel les exécute simultanément sans configuration.</li>
+        <li><strong>Inférence du plan</strong> : le planificateur compose
+        automatiquement la séquence à partir des signatures Java, sans qu'aucune
+        arête ne soit déclarée par le développeur.</li>
+        <li><strong>Limite de la version</strong> : tout autre sinistre suit le même
+        chemin. Aucune adaptation au contexte n'est possible — la V2 corrige ce point.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>6 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 7 : VERSION 2
+     ==================================================================== -->
+<section class="slide" id="v2">
+  <h2><span class="num">05</span>Version 2 — Trois chemins terminaux</h2>
+
+  <p class="lead">
+    Ajout de trois actions terminales <code class="inline">@AchievesGoal</code>
+    avec des préconditions mutuellement exclusives. L'agent peut désormais aboutir
+    de trois façons différentes selon le contexte.
+  </p>
+
+<pre><code><span class="an">@Condition</span>(name = <span class="st">"hasInjury"</span>)
+<span class="kw">public boolean</span> hasInjury(ClaimReport c) { <span class="kw">return</span> c.hasInjury(); }
+
+<span class="an">@Condition</span>(name = <span class="st">"fraudSuspected"</span>)
+<span class="kw">public boolean</span> fraudSuspected(FraudScore s) { <span class="kw">return</span> s.probability() &gt; 0.6; }
+
+<span class="an">@Condition</span>(name = <span class="st">"amountExceedsThreshold"</span>)
+<span class="kw">public boolean</span> exceedsThreshold(DamageEstimate d) {
+    <span class="kw">return</span> d.estimatedCost().compareTo(BigDecimal.valueOf(5000)) &gt; 0;
+}</code></pre>
+
+<pre><code><span class="an">@Action</span>(cost = 2.0, pre = {<span class="st">"!fraudSuspected"</span>, <span class="st">"!amountExceedsThreshold"</span>})
+<span class="an">@AchievesGoal</span>(description = <span class="st">"Sinistre traité"</span>)
+<span class="kw">public</span> <span class="ty">ClaimDecision</span> autoApprove(PolicyValidation v, DamageEstimate d,
+                                  FraudScore s, Policy p) { ... }
+
+<span class="an">@Action</span>(cost = 12.0, pre = {<span class="st">"amountExceedsThreshold"</span>, <span class="st">"!fraudSuspected"</span>})
+<span class="an">@AchievesGoal</span>(description = <span class="st">"Sinistre traité"</span>)
+<span class="kw">public</span> <span class="ty">ClaimDecision</span> seniorReview(PolicyValidation v, DamageEstimate d,
+                                   FraudScore s, HumanReviewService svc) { ... }
+
+<span class="an">@Action</span>(cost = 20.0, pre = {<span class="st">"fraudSuspected"</span>})
+<span class="an">@AchievesGoal</span>(description = <span class="st">"Sinistre traité"</span>)
+<span class="kw">public</span> <span class="ty">ClaimDecision</span> escalateToFraudUnit(FraudScore score, ClaimReport c,
+                                          HumanReviewService svc) { ... }</code></pre>
+
+  <h3>Observation importante sur les coûts</h3>
+
+  <div class="callout warning">
+    <strong>Les coûts de cette version ne sont pas différenciants.</strong>
+    Les préconditions étant mutuellement exclusives, une seule action terminale
+    est éligible à un instant donné. Les valeurs 2.0, 12.0 et 20.0 sont purement
+    informatives : elles documentent l'intention mais ne participent à aucun
+    arbitrage. La version 3 corrige ce problème structurel.
+  </div>
+
+  <h3>Topologie de la version 2</h3>
+
+  <figure>
+    <svg viewBox="0 0 620 280" width="620">
+      <defs>
+        <marker id="arrow-success3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#27AE60"></path>
+        </marker>
+        <marker id="arrow-warn3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#F39C12"></path>
+        </marker>
+        <marker id="arrow-danger3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#C0392B"></path>
+        </marker>
+        <marker id="arrow-dark3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+        </marker>
+      </defs>
+
+      <g font-family="Helvetica" font-size="12" font-weight="600">
+        <!-- Pipeline commun -->
+        <rect x="230" y="20" width="160" height="32" rx="4" fill="#3498DB"></rect>
+        <text x="310" y="40" fill="white" text-anchor="middle">[pipeline commun]</text>
+
+        <!-- detectFraud -->
+        <rect x="240" y="75" width="140" height="32" rx="4" fill="#16A085"></rect>
+        <text x="310" y="95" fill="white" text-anchor="middle">detectFraud</text>
+
+        <!-- Routeur -->
+        <circle cx="310" cy="140" r="16" fill="#FC990F"></circle>
+        <text x="310" y="146" fill="white" text-anchor="middle" font-size="16" font-weight="700">?</text>
+
+        <!-- Trois goals -->
+        <rect x="20" y="200" width="170" height="44" rx="5" fill="#27AE60"></rect>
+        <text x="105" y="220" fill="white" text-anchor="middle">autoApprove</text>
+        <text x="105" y="236" fill="white" text-anchor="middle" font-size="10" font-weight="400">cost=2</text>
+
+        <rect x="225" y="200" width="170" height="44" rx="5" fill="#F39C12"></rect>
+        <text x="310" y="220" fill="white" text-anchor="middle">seniorReview</text>
+        <text x="310" y="236" fill="white" text-anchor="middle" font-size="10" font-weight="400">cost=12</text>
+
+        <rect x="430" y="200" width="170" height="44" rx="5" fill="#C0392B"></rect>
+        <text x="515" y="220" fill="white" text-anchor="middle">fraudEscalate</text>
+        <text x="515" y="236" fill="white" text-anchor="middle" font-size="10" font-weight="400">cost=20</text>
+      </g>
+
+      <!-- Flèches verticales -->
+      <g stroke="#0E0E1A" stroke-width="1.5" fill="none">
+        <line x1="310" y1="52" x2="310" y2="75" marker-end="url(#arrow-dark3)"></line>
+        <line x1="310" y1="107" x2="310" y2="124" marker-end="url(#arrow-dark3)"></line>
+      </g>
+
+      <!-- Flèches vers les goals (colorées selon le chemin) -->
+      <g fill="none" stroke-width="1.5">
+        <line x1="299" y1="154" x2="130" y2="198" stroke="#27AE60" marker-end="url(#arrow-success3)"></line>
+        <line x1="310" y1="156" x2="310" y2="198" stroke="#F39C12" marker-end="url(#arrow-warn3)"></line>
+        <line x1="321" y1="154" x2="490" y2="198" stroke="#C0392B" marker-end="url(#arrow-danger3)"></line>
+      </g>
+
+      <!-- Labels conditions -->
+      <g font-family="Helvetica" font-size="10" font-style="italic">
+        <text x="180" y="175" fill="#27AE60" font-weight="600">!fraud &amp; !threshold</text>
+        <text x="340" y="185" fill="#F39C12" font-weight="600">threshold</text>
+        <text x="425" y="175" fill="#C0392B" font-weight="600">fraud</text>
+      </g>
+
+      <!-- Note en bas -->
+      <text x="310" y="272" font-size="10" fill="#6B6B7C" text-anchor="middle" font-style="italic">
+        Les trois préconditions sont mutuellement exclusives : une seule action terminale est éligible à la fois
+      </text>
+    </svg>
+    <figcaption>Schéma 4 — La version 2 introduit un "routeur" virtuel formé par
+      les préconditions mutuellement exclusives. Les coûts ne servent pas à arbitrer.</figcaption>
+  </figure>
+
+  <div class="key-fact">
+    Pour que les coûts deviennent un véritable levier d'optimisation, il faut
+    <strong>plusieurs actions qui produisent le même type</strong>. C'est précisément
+    la proposition de la version 3.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>7 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : SCÉNARIOS V2
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">05</span>Version 2 — Trois scénarios pour les trois chemins</h2>
+
+  <p class="lead">
+    Trois sinistres différents sont soumis au même agent V2. Chacun emprunte une
+    trajectoire distincte sans qu'aucune règle de routage n'ait été codée. Les
+    préconditions mutuellement exclusives se chargent de tout.
+  </p>
+
+  <div class="scenario-header sc-a">SCÉNARIO V2-A — Petit sinistre, auto-approbation</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 1 500 €,
+              hasInjury: false }
+
+Plan exécuté :
+  → DamageEstimate = 1 200 €
+  → FraudScore     = 0.05
+  → !threshold &amp; !fraud
+  → autoApprove ✓</code></pre>
+    </div>
+    <div>
+      <h4>Observation</h4>
+      <p style="font-size: 0.9rem;">Le montant reste sous le seuil de 5 000 € et
+      aucun signal de fraude n'est détecté. La précondition <code class="inline">!fraudSuspected
+      &amp; !amountExceedsThreshold</code> est satisfaite, les deux autres sont
+      violées. Une seule action terminale est éligible : <code class="inline">autoApprove</code>.</p>
+    </div>
+  </div>
+
+  <div class="scenario-header sc-b">SCÉNARIO V2-B — Sinistre important, revue humaine</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 12 000 €,
+              hasInjury: false }
+
+Plan exécuté :
+  → DamageEstimate = 11 800 €
+  → FraudScore     = 0.10
+  → threshold &amp; !fraud
+  → seniorReview ✓</code></pre>
+    </div>
+    <div>
+      <h4>Observation</h4>
+      <p style="font-size: 0.9rem;">Le montant dépasse 5 000 €, la condition
+      <code class="inline">amountExceedsThreshold</code> bascule à TRUE après
+      l'estimation. <code class="inline">autoApprove</code> devient inéligible. Le
+      planificateur retient automatiquement <code class="inline">seniorReview</code>,
+      seule option restante.</p>
+    </div>
+  </div>
+
+  <div class="scenario-header sc-e">SCÉNARIO V2-C — Fraude détectée, escalade</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { description:
+  "3ème sinistre similaire en 12 mois,
+   pas de témoin",
+  claimedAmount: 6 800 € }
+
+Plan exécuté :
+  → DamageEstimate = 6 500 €
+  → FraudScore     = 0.78  ⚠
+  → fraudSuspected
+  → fraudEscalation ✓</code></pre>
+    </div>
+    <div>
+      <h4>Observation</h4>
+      <p style="font-size: 0.9rem;">Le détecteur de fraude renvoie un score élevé.
+      La condition <code class="inline">fraudSuspected</code> bascule à TRUE,
+      éliminant <code class="inline">autoApprove</code> et <code class="inline">seniorReview</code>.
+      Seule <code class="inline">fraudEscalation</code> reste éligible. <strong>Le
+      plan a été silencieusement réorienté en cours d'exécution.</strong></p>
+    </div>
+  </div>
+
+  <div class="key-fact">
+    Trois sinistres, trois plans différents, zéro ligne de code de routage. Mais
+    les coûts (2.0, 12.0, 20.0) n'ont joué <em>aucun rôle</em> dans ces arbitrages
+    — c'est précisément ce qu'apporte la V3.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>8 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 8 : VERSION 3
+     ==================================================================== -->
+<section class="slide" id="v3">
+  <h2><span class="num">06</span>Version 3 — Coûts différenciants</h2>
+
+  <p class="lead">
+    Pour que le coût soit réellement décisionnel, il faut <strong>plusieurs actions
+    interchangeables</strong> : plusieurs méthodes produisant le même type de
+    résultat, avec des coûts et préconditions différents. Le planificateur choisit
+    alors entre des alternatives réelles.
+  </p>
+
+  <div class="key-fact">
+    Les coûts ne différencient que là où il existe un choix. Une action obligatoire
+    sur le chemin critique, aussi coûteuse soit-elle, ne modifie pas la décision du
+    planificateur — elle ne fait qu'alourdir le total.
+  </div>
+
+  <h3>Quatre façons d'estimer les dommages</h3>
+
+  <figure>
+    <svg viewBox="0 0 820 320" width="820">
+      <defs>
+        <marker id="arrow-grey4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#95A5A6"></path>
+        </marker>
+        <marker id="arrow-teal4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#16A085"></path>
+        </marker>
+      </defs>
+
+      <text x="410" y="25" font-size="14" font-weight="700" fill="#0E0E1A" text-anchor="middle">
+        Quatre actions produisent le même type DamageEstimate
+      </text>
+
+      <!-- Source -->
+      <rect x="340" y="55" width="140" height="38" rx="5" fill="#3498DB"></rect>
+      <text x="410" y="79" fill="white" text-anchor="middle" font-weight="700" font-size="13">ClaimReport</text>
+
+      <!-- 4 estimateurs -->
+      <g font-family="Helvetica" font-weight="600" font-size="11">
+        <!-- Heuristic -->
+        <rect x="40" y="160" width="130" height="34" rx="5" fill="#27AE60"></rect>
+        <text x="105" y="181" fill="white" text-anchor="middle">heuristic</text>
+        <text x="105" y="213" font-size="10" fill="#0E0E1A" text-anchor="middle">cost = 1.0</text>
+        <text x="105" y="226" font-size="9" fill="#6B6B7C" text-anchor="middle">pre = lowStakes</text>
+
+        <!-- Garagist -->
+        <rect x="220" y="160" width="130" height="34" rx="5" fill="#3498DB"></rect>
+        <text x="285" y="181" fill="white" text-anchor="middle">garagist</text>
+        <text x="285" y="213" font-size="10" fill="#0E0E1A" text-anchor="middle">cost = 5.0</text>
+        <text x="285" y="226" font-size="9" fill="#6B6B7C" text-anchor="middle">aucune précondition</text>
+
+        <!-- VisionLLM -->
+        <rect x="400" y="160" width="130" height="34" rx="5" fill="#FC990F"></rect>
+        <text x="465" y="181" fill="white" text-anchor="middle">visionLLM</text>
+        <text x="465" y="213" font-size="10" fill="#0E0E1A" text-anchor="middle">cost = 15.0</text>
+        <text x="465" y="226" font-size="9" fill="#6B6B7C" text-anchor="middle">pre = photosAvailable</text>
+
+        <!-- Expert -->
+        <rect x="580" y="160" width="130" height="34" rx="5" fill="#8E44AD"></rect>
+        <text x="645" y="181" fill="white" text-anchor="middle">expertHuman</text>
+        <text x="645" y="213" font-size="10" fill="#0E0E1A" text-anchor="middle">cost = 80.0</text>
+        <text x="645" y="226" font-size="9" fill="#6B6B7C" text-anchor="middle">pre = amount &gt; 30k€</text>
+      </g>
+
+      <!-- Flèches depuis ClaimReport (entrée commune) -->
+      <g stroke="#95A5A6" stroke-width="1" fill="none" stroke-dasharray="3 2">
+        <line x1="380" y1="93" x2="125" y2="158" marker-end="url(#arrow-grey4)"></line>
+        <line x1="395" y1="93" x2="290" y2="158" marker-end="url(#arrow-grey4)"></line>
+        <line x1="425" y1="93" x2="460" y2="158" marker-end="url(#arrow-grey4)"></line>
+        <line x1="440" y1="93" x2="620" y2="158" marker-end="url(#arrow-grey4)"></line>
+      </g>
+
+      <!-- Sortie commune -->
+      <rect x="285" y="260" width="250" height="42" rx="5" fill="#16A085"></rect>
+      <text x="410" y="280" fill="white" text-anchor="middle" font-weight="700" font-size="13">DamageEstimate</text>
+      <text x="410" y="294" fill="white" text-anchor="middle" font-size="10">type partagé par les 4 actions</text>
+
+      <!-- Flèches vers DamageEstimate -->
+      <g stroke="#16A085" stroke-width="1.5" fill="none">
+        <line x1="125" y1="194" x2="310" y2="260" marker-end="url(#arrow-teal4)"></line>
+        <line x1="285" y1="194" x2="370" y2="260" marker-end="url(#arrow-teal4)"></line>
+        <line x1="465" y1="194" x2="450" y2="260" marker-end="url(#arrow-teal4)"></line>
+        <line x1="625" y1="194" x2="510" y2="260" marker-end="url(#arrow-teal4)"></line>
+      </g>
+    </svg>
+    <figcaption>Schéma 5 — Quatre actions distinctes produisent le même type
+      <code>DamageEstimate</code>. Du point de vue du planificateur, elles sont
+      interchangeables : il choisit la plus adaptée au contexte.</figcaption>
+  </figure>
+
+  <h3>Code des quatre estimateurs</h3>
+
+<pre><code><span class="cm">// Option A : heuristique locale, rapide, pas de LLM. Confidence ~ 0.6</span>
+<span class="an">@Action</span>(cost = 1.0, pre = {<span class="st">"lowStakes"</span>})
+<span class="kw">public</span> <span class="ty">DamageEstimate</span> heuristicEstimate(ClaimReport c, DamageHeuristicService s) {
+    <span class="kw">return</span> s.estimate(c);
+}
+
+<span class="cm">// Option B : appel API au garage partenaire</span>
+<span class="an">@Action</span>(cost = 5.0)
+<span class="kw">public</span> <span class="ty">DamageEstimate</span> garagistEstimate(ClaimReport c, GarageService svc) {
+    <span class="kw">return</span> svc.requestEstimate(c.id());
+}
+
+<span class="cm">// Option C : analyse photo par modèle vision</span>
+<span class="an">@Action</span>(cost = 15.0, pre = {<span class="st">"photosAvailable"</span>})
+<span class="kw">public</span> <span class="ty">DamageEstimate</span> visionLLMEstimate(ClaimReport c, AI ai) {
+    <span class="kw">return</span> ai.withLlmByRole(<span class="st">"vision-model"</span>)
+             .creating(DamageEstimate.<span class="kw">class</span>)
+             .fromPrompt(<span class="st">"Assess damage from: "</span> + c.photoUrls());
+}
+
+<span class="cm">// Option D : expertise humaine, réservée aux gros sinistres</span>
+<span class="an">@Action</span>(cost = 80.0, pre = {<span class="st">"expertReviewAuthorized"</span>})
+<span class="kw">public</span> <span class="ty">DamageEstimate</span> expertHumanEstimate(ClaimReport c, ExpertService svc) {
+    <span class="kw">return</span> svc.requestExpertVisit(c.id());
+}</code></pre>
+
+  <h3>Action de raffinement — pattern "essayer puis raffiner"</h3>
+
+<pre><code><span class="an">@Condition</span>(name = <span class="st">"estimateLowConfidence"</span>)
+<span class="kw">public boolean</span> lowConf(DamageEstimate d) { <span class="kw">return</span> d.confidence() &lt; 0.7; }
+
+<span class="cm">// Consomme un DamageEstimate, en produit un nouveau (raffiné)</span>
+<span class="cm">// Éligible uniquement si la confidence de l'estimate précédent est basse</span>
+<span class="an">@Action</span>(cost = 5.0, pre = {<span class="st">"estimateLowConfidence"</span>})
+<span class="kw">public</span> <span class="ty">DamageEstimate</span> refineWithGarage(DamageEstimate existing,
+                                        ClaimReport c, GarageService svc) {
+    <span class="kw">return</span> DamageEstimate.reconcile(existing, svc.requestEstimate(c.id()));
+}</code></pre>
+
+  <div class="callout tip">
+    <strong>Stratégie adaptative gratuite.</strong> Le planificateur peut désormais
+    construire <code class="inline">heuristic → refineWithGarage → autoApprove</code>
+    au lieu de <code class="inline">garagist → autoApprove</code>. Le raffinement ne
+    s'exécute que si nécessaire. Dans les cas où l'heuristique est déjà suffisamment
+    confiante, le coût reste minimal.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>9 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : SCÉNARIOS V3
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">06</span>Version 3 — Les coûts qui arbitrent réellement</h2>
+
+  <p class="lead">
+    Les estimateurs interchangeables introduits par la V3 permettent au planificateur
+    de faire de vrais choix économiques. Trois scénarios montrent comment le même
+    agent retient un estimateur différent selon le contexte, puis un quatrième
+    illustre le pattern <em>essayer puis raffiner</em>.
+  </p>
+
+  <div class="scenario-header sc-a">SCÉNARIO V3-A — Micro-sinistre, heuristique retenue</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 800 €,
+              photoUrls: [p1.jpg] }
+
+Éligibilité des estimateurs :
+  heuristic   ✓ (lowStakes OK)   cost=1
+  garagist    ✓                   cost=5
+  visionLLM   ✗ (1 seule photo)
+  expert      ✗ (&lt; 30k€)
+
+→ Retenu : heuristic (le moins cher)
+
+Plan : fetchPolicy ∥ heuristic
+  → validate → detectFraud
+  → autoApprove ✓
+Coût total : 10  |  Score : +90</code></pre>
+    </div>
+    <div>
+      <h4>Observation — coûts différenciants</h4>
+      <p style="font-size: 0.9rem;">Pour un sinistre faible avec peu de photos,
+      l'heuristique locale suffit. Le planificateur arbitre <strong>entre deux
+      estimateurs éligibles</strong> et retient celui dont le coût (1.0) est le plus
+      faible. Le coût devient enfin un vrai levier de décision.</p>
+      <p style="font-size: 0.9rem;">Sans le coût, le planificateur aurait tiré au
+      sort. Sans l'interchangeabilité (un seul estimateur produisant
+      <code class="inline">DamageEstimate</code>), le coût n'aurait servi à rien.
+      <strong>Les deux conditions sont indispensables pour que les coûts arbitrent.</strong></p>
+    </div>
+  </div>
+
+  <div class="scenario-header sc-b">SCÉNARIO V3-B — Sinistre standard, garage préféré au vision LLM</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 3 500 €,
+              photoUrls: 3 photos }
+
+Éligibilité :
+  heuristic   ✗ (lowStakes false)
+  garagist    ✓                   cost=5
+  visionLLM   ✓                   cost=15
+  expert      ✗
+
+→ Retenu : garagist (5 &lt; 15)
+
+Plan : fetchPolicy ∥ garagist
+  → validate → detectFraud
+  → autoApprove ✓
+Coût total : 14  |  Score : +86</code></pre>
+    </div>
+    <div>
+      <h4>Observation — éviter le sur-équipement</h4>
+      <p style="font-size: 0.9rem;">Le vision LLM est éligible mais coûte trois fois
+      plus cher que l'API garage sans apporter d'avantage décisif sur ce type de
+      sinistre. Le planificateur évite automatiquement le sur-équipement.</p>
+      <p style="font-size: 0.9rem;">Comportement analogue à un humain qui ne sortirait
+      pas l'artillerie lourde pour une estimation standard. Cette discipline
+      économique est <strong>encodée dans les coûts, pas dans des règles</strong>.</p>
+    </div>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>10 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : SCÉNARIOS V3 (suite)
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">06</span>Version 3 — Scénarios d'illustration <em style="font-size:1rem;">(suite)</em></h2>
+
+  <div class="scenario-header sc-c">SCÉNARIO V3-C — Vision LLM imposé, basculement vers seniorReview</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 14 500 €,
+              description: "...avec tiers",
+              photoUrls: 5 photos }
+
+Contexte : API garage saturée
+
+Éligibilité :
+  heuristic   ✗ (lowStakes false)
+  garagist    ✗ (circuit breaker)
+  visionLLM   ✓ seule option   cost=15
+  expert      ✗ (&lt; 30k€)
+
+→ DamageEstimate = 14 300 €
+→ amountExceedsThreshold = TRUE
+→ Re-planification :
+  autoApprove éliminée
+  seniorReview ✓ (cost=12)
+
+Coût total : 42  |  Score : +18</code></pre>
+    </div>
+    <div>
+      <h4>Observation — re-planification dynamique</h4>
+      <p style="font-size: 0.9rem;">Deux mécanismes se combinent ici :</p>
+      <ul style="font-size: 0.88rem;">
+        <li>Le <strong>circuit breaker</strong> élimine le garage. Avec un seul
+        estimateur viable, le planificateur n'a plus de choix.</li>
+        <li>L'<strong>extraction du tiers</strong> se déclenche automatiquement
+        grâce à la précondition <code class="inline">involvesThirdParty</code>.</li>
+        <li>Le résultat de l'estimation (14 300 €) fait basculer la condition
+        <code class="inline">amountExceedsThreshold</code> à TRUE. Le plan est
+        <strong>recomposé en cours d'exécution</strong> pour viser
+        <code class="inline">seniorReview</code> au lieu d'<code class="inline">autoApprove</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="scenario-header sc-d">SCÉNARIO V3-D — Heuristique insuffisante, raffinement automatique</div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 1 800 €,
+              photoUrls: [p1.jpg] }
+→ lowStakes = true
+
+Plan optimiste initial :
+  heuristic → validate → detectFraud
+  → autoApprove
+  (coût prévu : 10)
+
+Heuristique retourne :
+  DamageEstimate { confidence: 0.45 }
+→ estimateLowConfidence = TRUE
+→ Re-planification :
+  refineWithGarage devient éligible
+
+Plan révisé :
+  heuristic → refineWithGarage
+  → validate → detectFraud
+  → autoApprove ✓
+Coût total : 15  |  Score : +85</code></pre>
+    </div>
+    <div>
+      <h4>Observation — pattern <em>essayer puis raffiner</em></h4>
+      <p style="font-size: 0.9rem;">L'heuristique est tentée en premier (1.0 de
+      coût). Lorsqu'elle retourne un résultat peu confiant, la condition
+      <code class="inline">estimateLowConfidence</code> bascule et débloque
+      <code class="inline">refineWithGarage</code>.</p>
+      <p style="font-size: 0.9rem;">L'astuce : le raffinement n'a pas lieu si
+      l'heuristique est suffisamment confiante. Sur une volumétrie réelle, on paie
+      la précision <strong>uniquement quand on en a besoin</strong>. Stratégie
+      adaptative émergente, sans état additionnel ni branchement explicite.</p>
+    </div>
+  </div>
+
+  <div class="key-fact">
+    La V3 démontre que les coûts deviennent décisionnels dès lors qu'il existe
+    plusieurs façons de produire un même type de résultat. Quatre comportements
+    distincts émergent du même code.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>11 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 9 : VERSION 4 — COMPLEXITÉ MAXIMALE
+     ==================================================================== -->
+<section class="slide" id="v4">
+  <h2><span class="num">07</span>Version 4 — Complexité maximale</h2>
+
+  <p class="lead">
+    La version 3 démontrait l'interchangeabilité des actions par leurs coûts. La
+    version 4 pousse plus loin en introduisant des <strong>actions contextuelles
+    conditionnelles</strong> (présence d'un tiers, blessure corporelle), un
+    <strong>échange conversationnel avec le client</strong> via le mode
+    <code class="inline">@State</code>, et un <strong>quatrième chemin de
+    résolution amiable</strong>. Objectif : montrer comment GOAP compose avec
+    d'autres patterns de contrôle sans perdre sa cohérence.
+  </p>
+
+  <h3>Nouveaux types du domaine</h3>
+
+<pre><code><span class="kw">public record</span> <span class="ty">ThirdPartyInfo</span>(String name, String insurer,
+                              <span class="kw">boolean</span> cooperative, BigDecimal liability) {}
+
+<span class="kw">public record</span> <span class="ty">MedicalAssessment</span>(BigDecimal estimatedCost, Severity severity,
+                                 <span class="kw">int</span> recoveryDays) {}
+
+<span class="kw">public record</span> <span class="ty">ClientResponse</span>(String message, <span class="kw">boolean</span> documentsProvided,
+                             BigDecimal counterOffer) {}
+
+<span class="kw">public record</span> <span class="ty">AmicableSettlement</span>(BigDecimal agreedAmount,
+                                 String clientSignature, LocalDateTime signedAt) {}
+
+<span class="cm">// État conversationnel pour la boucle d'échange avec le client</span>
+<span class="an">@State</span>
+<span class="kw">public record</span> <span class="ty">AwaitingClientDocs</span>(List&lt;String&gt; requestedDocs,
+                                 Instant requestedAt, <span class="kw">int</span> retriesLeft) {}</code></pre>
+
+  <h3>Nouvelles conditions</h3>
+
+<pre><code><span class="an">@Condition</span>(name = <span class="st">"involvesThirdParty"</span>)
+<span class="kw">public boolean</span> thirdParty(ClaimReport c) {
+    <span class="kw">return</span> c.description().toLowerCase().matches(<span class="st">".*(tiers|autre.*véhicule).*"</span>);
+}
+
+<span class="an">@Condition</span>(name = <span class="st">"hasInjury"</span>)
+<span class="kw">public boolean</span> injury(ClaimReport c) { <span class="kw">return</span> c.hasInjury(); }
+
+<span class="an">@Condition</span>(name = <span class="st">"thirdPartyCooperative"</span>)
+<span class="kw">public boolean</span> cooperative(ThirdPartyInfo t) { <span class="kw">return</span> t.cooperative(); }
+
+<span class="an">@Condition</span>(name = <span class="st">"documentsMissing"</span>)
+<span class="kw">public boolean</span> docsMissing(DamageEstimate d) {
+    <span class="kw">return</span> d.confidence() &lt; 0.5 &amp;&amp; d.damagedParts().isEmpty();
+}
+
+<span class="an">@Condition</span>(name = <span class="st">"amicableSettlementViable"</span>)
+<span class="kw">public boolean</span> amicable(DamageEstimate d, FraudScore f, ThirdPartyInfo t) {
+    <span class="kw">return</span> d.estimatedCost().compareTo(BigDecimal.valueOf(8000)) &lt; 0
+        &amp;&amp; f.probability() &lt; 0.3
+        &amp;&amp; t.cooperative();
+}</code></pre>
+
+  <h3>Actions contextuelles — déclenchement conditionnel automatique</h3>
+
+<pre><code><span class="cm">// S'active automatiquement dès que la description mentionne un tiers</span>
+<span class="an">@Action</span>(cost = 8.0, pre = {<span class="st">"involvesThirdParty"</span>})
+<span class="kw">public</span> <span class="ty">ThirdPartyInfo</span> extractThirdParty(ClaimReport c, AI ai) {
+    <span class="kw">return</span> ai.withDefaultLlm().creating(ThirdPartyInfo.<span class="kw">class</span>)
+             .fromPrompt(<span class="st">"Extract third-party details from: "</span> + c.description());
+}
+
+<span class="cm">// S'active uniquement si blessure corporelle déclarée</span>
+<span class="an">@Action</span>(cost = 3.0, pre = {<span class="st">"hasInjury"</span>})
+<span class="kw">public</span> <span class="ty">MedicalAssessment</span> assessMedical(ClaimReport c, AI ai) {
+    <span class="kw">return</span> ai.withLlmByRole(<span class="st">"medical-specialist"</span>)
+             .creating(MedicalAssessment.<span class="kw">class</span>)
+             .fromPrompt(<span class="st">"Assess injury severity: "</span> + c.description());
+}</code></pre>
+
+  <h3>Boucle conversationnelle via <code class="inline">@State</code></h3>
+
+  <p>
+    GOAP est pensé pour des plans finis. Les boucles d'attente ("le client n'a
+    pas répondu, on relance") sont mal modélisées par le pathfinding. Embabel
+    permet de basculer localement en <strong>state machine</strong> via le pattern
+    <code class="inline">@State</code> : l'action retourne un état d'attente,
+    le contrôle reste sur cet état jusqu'à résolution, puis redonne la main au
+    planificateur GOAP.
+  </p>
+
+<pre><code><span class="cm">// Si les documents sont manquants, on demande au client et on attend</span>
+<span class="an">@Action</span>(cost = 2.0, pre = {<span class="st">"documentsMissing"</span>})
+<span class="kw">public</span> <span class="ty">AwaitingClientDocs</span> requestDocsFromClient(DamageEstimate d,
+                                                ClaimReport c,
+                                                ClientChannel channel) {
+    var requested = List.of(<span class="st">"photos HD"</span>, <span class="st">"facture garagiste"</span>, <span class="st">"constat"</span>);
+    channel.sendMessage(c.clientId(), <span class="st">"Merci de nous transmettre..."</span>);
+    <span class="kw">return new</span> AwaitingClientDocs(requested, Instant.now(), 3);
+}
+
+<span class="cm">// Le handler de l'état @State est géré par Embabel (callbacks sur event)</span>
+<span class="cm">// Quand le client répond, une nouvelle ClientResponse arrive sur le blackboard</span>
+<span class="an">@Action</span>(cost = 1.0)
+<span class="kw">public</span> <span class="ty">DamageEstimate</span> reconcileWithClientDocs(AwaitingClientDocs waiting,
+                                                ClientResponse response,
+                                                DamageEstimate original) {
+    <span class="kw">if</span> (!response.documentsProvided() &amp;&amp; waiting.retriesLeft() &gt; 0) {
+        <span class="kw">return</span> original;  <span class="cm">// la boucle continue, nouvelle relance</span>
+    }
+    <span class="kw">return</span> DamageEstimate.enrichedFrom(original, response);
+}</code></pre>
+
+  <div class="callout tip">
+    <strong>Le point clé.</strong> Le planificateur GOAP ne sait pas (et n'a pas
+    besoin de savoir) qu'il y a une boucle en dessous. Du point de vue du plan,
+    <code class="inline">requestDocsFromClient</code> produit un
+    <code class="inline">AwaitingClientDocs</code>, et
+    <code class="inline">reconcileWithClientDocs</code> en consomme un. La boucle
+    est locale à ce sous-graphe et gérée par le state machine d'Embabel. GOAP et
+    state machine <strong>coexistent sans se marcher dessus</strong>.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>12 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 10 : V4 SUITE — AMIABLE & TOPOLOGIE
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">07</span>Version 4 — Résolution amiable et topologie complète</h2>
+
+  <h3>Nouveau chemin : résolution amiable entre parties</h3>
+
+  <p>
+    Lorsque le tiers est coopératif, que le montant reste raisonnable et qu'aucun
+    signal de fraude n'est détecté, l'agent peut proposer une résolution amiable
+    directe — un <strong>nouveau goal</strong> qui court-circuite la revue humaine.
+  </p>
+
+<pre><code><span class="an">@Action</span>(cost = 6.0, pre = {<span class="st">"amicableSettlementViable"</span>})
+<span class="an">@AchievesGoal</span>(description = <span class="st">"Sinistre résolu à l'amiable"</span>, value = 90.0)
+<span class="kw">public</span> <span class="ty">ClaimDecision</span> proposeAmicableSettlement(DamageEstimate d,
+                                                 ThirdPartyInfo tp,
+                                                 Policy p,
+                                                 AmicableSettlementService svc) {
+    BigDecimal splitAmount = d.estimatedCost().multiply(tp.liability());
+    var settlement = svc.propose(d, tp, splitAmount);
+    <span class="kw">return new</span> ClaimDecision(Decision.AMICABLE_SETTLEMENT,
+                             splitAmount, <span class="st">"Amicable between parties"</span>);
+}</code></pre>
+
+  <p>
+    La V4 compte désormais <strong>quatre goals possibles</strong> avec des values
+    et des coûts distincts. Les préconditions ne sont plus strictement exclusives —
+    <code class="inline">autoApprove</code> et
+    <code class="inline">proposeAmicableSettlement</code> peuvent être simultanément
+    éligibles. <strong>C'est dans ce contexte que les values arbitrent réellement.</strong>
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Goal</th>
+        <th>Value</th>
+        <th>Préconditions</th>
+        <th>Coût moyen</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>autoApprove</strong></td>
+        <td class="win">100</td>
+        <td>!fraud, !threshold</td>
+        <td>10-14</td>
+      </tr>
+      <tr>
+        <td><strong>proposeAmicableSettlement</strong> <em>(nouveau)</em></td>
+        <td class="win">90</td>
+        <td>amicableSettlementViable</td>
+        <td>20-25</td>
+      </tr>
+      <tr>
+        <td>seniorReview</td>
+        <td class="neutral">60</td>
+        <td>threshold, !fraud</td>
+        <td>35-45</td>
+      </tr>
+      <tr>
+        <td>fraudEscalation</td>
+        <td class="lose">40</td>
+        <td>fraudSuspected</td>
+        <td>30-40</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Topologie complète de la V4</h3>
+
+  <figure>
+    <svg viewBox="0 0 880 460" width="880">
+      <defs>
+        <marker id="arrow-v4-dark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+        </marker>
+        <marker id="arrow-v4-grey" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#95A5A6"></path>
+        </marker>
+        <marker id="arrow-v4-success" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#27AE60"></path>
+        </marker>
+        <marker id="arrow-v4-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#16A085"></path>
+        </marker>
+        <marker id="arrow-v4-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#F39C12"></path>
+        </marker>
+        <marker id="arrow-v4-danger" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#C0392B"></path>
+        </marker>
+        <marker id="arrow-v4-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#8E44AD"></path>
+        </marker>
+      </defs>
+
+      <!-- ENTRÉE -->
+      <rect x="380" y="15" width="120" height="35" rx="5" fill="#3498DB"></rect>
+      <text x="440" y="37" font-size="12" font-weight="700" fill="white" text-anchor="middle">ClaimReport</text>
+
+      <!-- ÉTAGE 1 : collecte de contexte (6 actions parallèles) -->
+      <g font-family="Helvetica" font-size="10" font-weight="600">
+        <rect x="20" y="85" width="120" height="32" rx="4" fill="#16A085"></rect>
+        <text x="80" y="105" fill="white" text-anchor="middle">fetchPolicy</text>
+
+        <rect x="150" y="85" width="120" height="32" rx="4" fill="#16A085"></rect>
+        <text x="210" y="105" fill="white" text-anchor="middle">heuristic / garagist</text>
+
+        <rect x="280" y="85" width="120" height="32" rx="4" fill="#16A085"></rect>
+        <text x="340" y="105" fill="white" text-anchor="middle">visionLLM (opt.)</text>
+
+        <rect x="410" y="85" width="150" height="32" rx="4" fill="#8E44AD"></rect>
+        <text x="485" y="100" fill="white" text-anchor="middle">extractThirdParty</text>
+        <text x="485" y="112" fill="white" text-anchor="middle" font-size="8" font-weight="400">si involvesThirdParty</text>
+
+        <rect x="570" y="85" width="130" height="32" rx="4" fill="#8E44AD"></rect>
+        <text x="635" y="100" fill="white" text-anchor="middle">assessMedical</text>
+        <text x="635" y="112" fill="white" text-anchor="middle" font-size="8" font-weight="400">si hasInjury</text>
+
+        <rect x="710" y="85" width="150" height="32" rx="4" fill="#FC990F"></rect>
+        <text x="785" y="100" fill="white" text-anchor="middle">requestDocsFromClient</text>
+        <text x="785" y="112" fill="white" text-anchor="middle" font-size="8" font-weight="400">si documentsMissing</text>
+      </g>
+
+      <!-- Flèches depuis ClaimReport -->
+      <g stroke="#95A5A6" stroke-width="0.8" fill="none" stroke-dasharray="2 2">
+        <line x1="400" y1="50" x2="80" y2="82" marker-end="url(#arrow-v4-grey)"></line>
+        <line x1="410" y1="50" x2="210" y2="82" marker-end="url(#arrow-v4-grey)"></line>
+        <line x1="420" y1="50" x2="340" y2="82" marker-end="url(#arrow-v4-grey)"></line>
+        <line x1="445" y1="50" x2="485" y2="82" marker-end="url(#arrow-v4-grey)"></line>
+        <line x1="470" y1="50" x2="635" y2="82" marker-end="url(#arrow-v4-grey)"></line>
+        <line x1="485" y1="50" x2="785" y2="82" marker-end="url(#arrow-v4-grey)"></line>
+      </g>
+
+      <!-- Boucle @State -->
+      <rect x="710" y="140" width="150" height="32" rx="4" fill="#FC990F" opacity="0.6"></rect>
+      <text x="785" y="155" fill="white" text-anchor="middle" font-size="10" font-weight="700">AwaitingClientDocs</text>
+      <text x="785" y="167" fill="white" text-anchor="middle" font-size="8">@State (boucle)</text>
+
+      <path d="M 785 117 Q 850 125 850 140 L 850 155 Q 850 170 785 172" fill="none" stroke="#F39C12" stroke-width="1.5" stroke-dasharray="4 2"></path>
+
+      <rect x="710" y="195" width="150" height="32" rx="4" fill="#FC990F"></rect>
+      <text x="785" y="215" fill="white" text-anchor="middle" font-size="10">reconcileWithClientDocs</text>
+
+      <line x1="785" y1="172" x2="785" y2="193" stroke="#F39C12" stroke-width="1.5" marker-end="url(#arrow-v4-orange)"></line>
+
+      <!-- ÉTAGE 2 : detectFraud (nœud central) -->
+      <rect x="380" y="200" width="140" height="32" rx="4" fill="#0E0E1A"></rect>
+      <text x="450" y="220" fill="white" text-anchor="middle" font-size="11" font-weight="700">detectFraud</text>
+
+      <g stroke="#0E0E1A" stroke-width="1" fill="none">
+        <line x1="80" y1="117" x2="400" y2="198" marker-end="url(#arrow-v4-dark)"></line>
+        <line x1="210" y1="117" x2="430" y2="198" marker-end="url(#arrow-v4-dark)"></line>
+        <line x1="340" y1="117" x2="450" y2="198" marker-end="url(#arrow-v4-dark)"></line>
+        <line x1="485" y1="117" x2="470" y2="198" marker-end="url(#arrow-v4-dark)"></line>
+        <line x1="635" y1="117" x2="490" y2="198" marker-end="url(#arrow-v4-dark)"></line>
+        <line x1="710" y1="211" x2="520" y2="215" marker-end="url(#arrow-v4-dark)" stroke-dasharray="3 2"></line>
+      </g>
+
+      <!-- ROUTEUR (évaluation de 4 préconditions) -->
+      <circle cx="450" cy="275" r="18" fill="#DA0127"></circle>
+      <text x="450" y="281" fill="white" text-anchor="middle" font-size="16" font-weight="700">?</text>
+
+      <line x1="450" y1="232" x2="450" y2="257" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-v4-dark)"></line>
+
+      <!-- ÉTAGE 3 : 4 goals -->
+      <g font-family="Helvetica" font-weight="600" font-size="10">
+        <rect x="20" y="345" width="170" height="42" rx="5" fill="#27AE60"></rect>
+        <text x="105" y="362" fill="white" text-anchor="middle">autoApprove</text>
+        <text x="105" y="377" fill="white" text-anchor="middle" font-size="9" font-weight="400">value=100 · cost=2</text>
+
+        <rect x="210" y="345" width="200" height="42" rx="5" fill="#16A085"></rect>
+        <text x="310" y="360" fill="white" text-anchor="middle">proposeAmicableSettlement</text>
+        <text x="310" y="377" fill="white" text-anchor="middle" font-size="9" font-weight="400">value=90 · cost=6 (NOUVEAU)</text>
+
+        <rect x="430" y="345" width="170" height="42" rx="5" fill="#F39C12"></rect>
+        <text x="515" y="362" fill="white" text-anchor="middle">seniorReview</text>
+        <text x="515" y="377" fill="white" text-anchor="middle" font-size="9" font-weight="400">value=60 · cost=12</text>
+
+        <rect x="620" y="345" width="170" height="42" rx="5" fill="#C0392B"></rect>
+        <text x="705" y="362" fill="white" text-anchor="middle">fraudEscalation</text>
+        <text x="705" y="377" fill="white" text-anchor="middle" font-size="9" font-weight="400">value=40 · cost=20</text>
+      </g>
+
+      <!-- Flèches routeur vers goals (colorées) -->
+      <g fill="none" stroke-width="1.5">
+        <line x1="435" y1="290" x2="130" y2="343" stroke="#27AE60" marker-end="url(#arrow-v4-success)"></line>
+        <line x1="445" y1="293" x2="290" y2="343" stroke="#16A085" marker-end="url(#arrow-v4-teal)"></line>
+        <line x1="455" y1="293" x2="495" y2="343" stroke="#F39C12" marker-end="url(#arrow-v4-orange)"></line>
+        <line x1="465" y1="290" x2="665" y2="343" stroke="#C0392B" marker-end="url(#arrow-v4-danger)"></line>
+      </g>
+
+      <!-- Labels conditions -->
+      <g font-family="Helvetica" font-size="9" font-style="italic" font-weight="600">
+        <text x="210" y="310" fill="#27AE60">!fraud, !threshold</text>
+        <text x="340" y="325" fill="#16A085">amicable viable</text>
+        <text x="475" y="325" fill="#F39C12">threshold, !fraud</text>
+        <text x="580" y="310" fill="#C0392B">fraud</text>
+      </g>
+
+      <!-- Légende -->
+      <g font-family="Helvetica" font-size="9">
+        <rect x="20" y="420" width="12" height="12" fill="#16A085"></rect>
+        <text x="38" y="430" fill="#0E0E1A">actions obligatoires / alternatives</text>
+
+        <rect x="220" y="420" width="12" height="12" fill="#8E44AD"></rect>
+        <text x="238" y="430" fill="#0E0E1A">actions contextuelles (pré. dynamiques)</text>
+
+        <rect x="450" y="420" width="12" height="12" fill="#FC990F"></rect>
+        <text x="468" y="430" fill="#0E0E1A">@State (boucle conversationnelle)</text>
+      </g>
+    </svg>
+    <figcaption>Schéma 6 — Topologie complète de la V4. Chaque couleur représente
+      une catégorie d'actions. La boucle <code>@State</code> (orange) gère l'échange
+      avec le client sans perturber le planificateur GOAP. Quatre goals possibles
+      selon les conditions.</figcaption>
+  </figure>
+
+  <div class="key-fact">
+    La version 4 démontre que GOAP peut cohabiter avec d'autres paradigmes (state
+    machine pour les boucles, planification pour les branches) et gérer une vraie
+    complexité métier. Onze actions, sept conditions, quatre goals : <strong>un
+    workflow équivalent en state machine explicite dépasserait largement la
+    centaine d'arêtes</strong>.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>13 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : SCÉNARIOS V4
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">07</span>Version 4 — Scénarios d'illustration</h2>
+
+  <p class="lead">
+    La V4 introduit deux mécanismes nouveaux : un <strong>quatrième goal</strong>
+    (<code class="inline">proposeAmicableSettlement</code>) qui peut être éligible
+    en parallèle d'<code class="inline">autoApprove</code>, et une
+    <strong>boucle conversationnelle</strong> via <code class="inline">@State</code>
+    pour gérer l'attente d'éléments du client. Deux scénarios montrent ces
+    mécanismes à l'œuvre.
+  </p>
+
+  <div class="scenario-header" style="background: var(--teal);">
+    SCÉNARIO V4-A — Tiers coopératif, deux goals éligibles : la value arbitre
+  </div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport {
+  description: "Accrochage parking
+                avec autre véhicule",
+  claimedAmount: 4 500 €,
+  photoUrls: [p1, p2]
+}
+
+Conditions évaluées :
+  involvesThirdParty   = TRUE
+  → extractThirdParty déclenchée
+    ThirdPartyInfo {
+      cooperative: true,
+      liability: 0.7
+    }
+
+  FraudScore = 0.15
+  DamageEstimate = 4 200 € (&lt; 8000)
+
+  → !threshold &amp; !fraud           ✓
+  → amicableSettlementViable    ✓
+  → DEUX goals simultanément éligibles</code></pre>
+    </div>
+    <div>
+      <h4>Arbitrage par la value</h4>
+      <table style="font-size: 0.78rem; margin: 0.5rem 0;">
+        <thead>
+          <tr><th>Plan candidat</th><th>Coût</th><th>Value</th><th>Score</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>... → autoApprove</td>
+            <td>18</td><td>100</td>
+            <td class="win">+82</td>
+          </tr>
+          <tr>
+            <td>... → proposeAmicableSettlement</td>
+            <td>26</td><td>90</td>
+            <td>+64</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size: 0.9rem;"><strong>autoApprove l'emporte</strong> avec un
+      score de +82. Les deux étaient éligibles, les values ont effectivement servi
+      à arbitrer entre eux.</p>
+      <p style="font-size: 0.88rem;">Pour favoriser l'amiable (par exemple pour des
+      raisons de relation client), passer sa value à 110 suffirait — aucune autre
+      ligne du code ne changerait. <strong>La politique business est encodée dans
+      les nombres, pas dans la logique.</strong></p>
+    </div>
+  </div>
+
+  <div class="scenario-header" style="background: var(--keyrus-orange);">
+    SCÉNARIO V4-B — Documents manquants, boucle conversationnelle @State
+  </div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport {
+  description: "Sinistre simple",
+  claimedAmount: 3 200 €,
+  photoUrls: [p1]   (peu de matière)
+}
+
+Plan initial :
+  → garagistEstimate
+    DamageEstimate {
+      confidence: 0.40,
+      damagedParts: []
+    }
+  → documentsMissing = TRUE
+  → requestDocsFromClient
+    AwaitingClientDocs { retries: 3 }
+
+[BOUCLE @State]
+  Le contrôle bascule en state machine :
+  → message envoyé au client
+  → attente de ClientResponse
+  → relance toutes les 24h si nécessaire
+  → après réception ou épuisement
+    des relances, retour à GOAP
+
+Plan repris :
+  → reconcileWithClientDocs
+  → DamageEstimate enrichi
+  → autoApprove ✓</code></pre>
+    </div>
+    <div>
+      <h4>Observation — cohabitation GOAP / state machine</h4>
+      <p style="font-size: 0.9rem;">GOAP gère mal les boucles d'attente — c'est sa
+      faiblesse structurelle. La V4 montre comment Embabel délègue ces sections à
+      une state machine via <code class="inline">@State</code>.</p>
+      <p style="font-size: 0.9rem;">Du point de vue du planificateur GOAP, rien
+      d'inhabituel : <code class="inline">requestDocsFromClient</code> produit un
+      <code class="inline">AwaitingClientDocs</code>, et
+      <code class="inline">reconcileWithClientDocs</code> en consomme un. La
+      gestion d'attente, des relances et du timeout est <strong>locale au
+      sous-graphe @State</strong> et invisible au planificateur.</p>
+      <p style="font-size: 0.9rem;">Conséquence pratique : les workflows
+      conversationnels de plusieurs jours (réclamation, contrat, support N2)
+      restent gérables sans que GOAP n'ait à modéliser le temps lui-même.</p>
+    </div>
+  </div>
+
+  <div class="key-fact">
+    La V4 démontre la maturité du modèle. Le planificateur compose avec d'autres
+    paradigmes (state machine), gère plusieurs goals concurrents, intègre des
+    actions contextuelles (tiers, blessure) et un nouveau chemin terminal — le
+    tout sans qu'aucune action existante ne soit modifiée par rapport à la V3.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>14 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : VERSION 5 — COÛTS ET VALUES DYNAMIQUES (1/2)
+     ==================================================================== -->
+<section class="slide" id="v5">
+  <h2><span class="num">08</span>Version 5 — Adaptativité opérationnelle (1/2)</h2>
+
+  <p class="lead">
+    Les versions précédentes utilisent des coûts et values constants, fixés à la
+    compilation. La V5 transforme l'agent en système <strong>réactif à son
+    environnement</strong> : les coûts sont calculés au runtime selon la charge,
+    le budget et le calendrier ; les values sont ajustées selon le profil client
+    et les SLA. Le même code produit alors des comportements radicalement
+    différents selon le contexte d'exécution.
+  </p>
+
+  <h3>Trois leviers d'adaptativité</h3>
+
+  <div class="grid-3">
+    <div class="card" style="border-top-color: var(--keyrus-orange);">
+      <h5 style="color: var(--keyrus-orange);">Coûts dynamiques</h5>
+      <p>Calcul à chaque requête selon la charge système, le budget LLM consommé
+      sur le sinistre, l'heure ou la date. L'agent évite naturellement les ressources
+      saturées ou hors budget.</p>
+    </div>
+    <div class="card" style="border-top-color: var(--purple);">
+      <h5 style="color: var(--purple);">Values dynamiques</h5>
+      <p>Ajustement de la valeur des goals selon le profil client (premium, standard,
+      à risque) et les contraintes contractuelles (SLA, dépassement de délai,
+      historique de la relation).</p>
+    </div>
+    <div class="card" style="border-top-color: var(--keyrus-cyan);">
+      <h5 style="color: var(--keyrus-cyan);">Multi-tenant</h5>
+      <p>Un même agent qui se comporte différemment selon le client final. Compagnie A
+      privilégie l'automatisation, compagnie B privilégie l'amiable, compagnie C
+      exige systématiquement l'humain — une seule base de code.</p>
+    </div>
+  </div>
+
+  <h3>Coûts dynamiques contextuels</h3>
+
+  <p>
+    L'implémentation s'appuie sur le contrat <code class="inline">CostFunction</code>
+    d'Embabel. Ci-dessous, une fonction de coût qui consulte simultanément la
+    charge système, le budget consommé et le calendrier.
+  </p>
+
+<pre><code><span class="an">@Component</span>
+<span class="kw">public class</span> <span class="ty">AdaptiveCostFunction</span> <span class="kw">implements</span> CostFunction {
+
+    <span class="an">@Autowired</span> <span class="kw">private</span> VisionModelMetrics visionMetrics;
+    <span class="an">@Autowired</span> <span class="kw">private</span> BudgetTracker budget;
+    <span class="an">@Autowired</span> <span class="kw">private</span> ClientProfileService clients;
+    <span class="an">@Autowired</span> <span class="kw">private</span> SLATracker sla;
+
+    <span class="an">@Override</span>
+    <span class="kw">public double</span> costOf(Action action, WorldState state) {
+        ClaimReport claim = state.get(ClaimReport.<span class="kw">class</span>);
+        ClientProfile profile = clients.getProfile(claim.clientId());
+        <span class="kw">double</span> base = action.getDefaultCost();
+
+        <span class="kw">switch</span> (action.getName()) {
+            <span class="kw">case</span> <span class="st">"visionLLMEstimate"</span> -&gt; {
+                <span class="cm">// Pénalité progressive si le modèle vision est saturé</span>
+                <span class="kw">double</span> queue = visionMetrics.queueDepth();
+                <span class="kw">double</span> overload = queue &gt; 50 ? queue * 0.5 : 0;
+                <span class="kw">return</span> base + overload;
+            }
+            <span class="kw">case</span> <span class="st">"detectFraud"</span> -&gt; {
+                <span class="cm">// Bascule sur un détecteur léger si déjà beaucoup dépensé</span>
+                <span class="kw">return</span> budget.spentOnCurrentClaim(claim.id()) &gt; 0.50
+                    ? base * 0.5 : base;
+            }
+            <span class="kw">case</span> <span class="st">"expertHumanEstimate"</span> -&gt; {
+                <span class="cm">// Plus cher en fin de mois (pression budgétaire)</span>
+                <span class="kw">int</span> day = LocalDate.now().getDayOfMonth();
+                <span class="kw">return</span> day &gt; 25 ? base * 1.5 : base;
+            }
+            <span class="kw">case</span> <span class="st">"heuristicEstimate"</span> -&gt; {
+                <span class="cm">// Réduction si le client est premium (priorité au traitement rapide)</span>
+                <span class="kw">return</span> profile.isPremium() ? base * 0.5 : base;
+            }
+            <span class="kw">default</span> -&gt; {
+                <span class="kw">return</span> base;
+            }
+        }
+    }
+}</code></pre>
+
+  <div class="callout">
+    <strong>Observation.</strong> Le code de l'agent (actions, conditions, goals)
+    n'est pas modifié. La seule extension est cette fonction de coût qui observe
+    l'environnement. <strong>Toute la logique d'adaptativité est concentrée en un
+    seul endroit, isolée du métier.</strong>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>15 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : VERSION 5 — COÛTS ET VALUES DYNAMIQUES (2/2)
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">08</span>Version 5 — Adaptativité opérationnelle (2/2)</h2>
+
+  <h3>Values dynamiques selon le profil client</h3>
+
+  <p>
+    Les values des goals peuvent également être calculées au runtime via
+    <code class="inline">@AchievesGoal(valueFunction = "...")</code>. Cela permet
+    de moduler les priorités business selon le contexte du client.
+  </p>
+
+<pre><code><span class="an">@Component</span>
+<span class="kw">public class</span> <span class="ty">ClientAwareValueFunction</span> {
+
+    <span class="an">@Autowired</span> <span class="kw">private</span> ClientProfileService clients;
+    <span class="an">@Autowired</span> <span class="kw">private</span> SLATracker sla;
+
+    <span class="an">@Bean</span>(<span class="st">"autoApproveValue"</span>)
+    <span class="kw">public</span> ToDoubleFunction&lt;ActionContext&gt; autoApproveValue() {
+        <span class="kw">return</span> ctx -&gt; {
+            ClaimReport c = ctx.getBlackboard().get(ClaimReport.<span class="kw">class</span>);
+            ClientProfile p = clients.getProfile(c.clientId());
+            <span class="kw">double</span> base = 100.0;
+
+            <span class="cm">// Premium : on valorise la résolution rapide</span>
+            <span class="kw">if</span> (p.isPremium()) base += 30;
+
+            <span class="cm">// SLA bientôt dépassé : urgence de résoudre</span>
+            <span class="kw">if</span> (sla.hoursRemaining(c.id()) &lt; 24) base += 20;
+
+            <span class="kw">return</span> base;
+        };
+    }
+
+    <span class="an">@Bean</span>(<span class="st">"amicableSettlementValue"</span>)
+    <span class="kw">public</span> ToDoubleFunction&lt;ActionContext&gt; amicableValue() {
+        <span class="kw">return</span> ctx -&gt; {
+            ClaimReport c = ctx.getBlackboard().get(ClaimReport.<span class="kw">class</span>);
+            ClientProfile p = clients.getProfile(c.clientId());
+
+            <span class="cm">// Compagnie B privilégie systématiquement l'amiable</span>
+            <span class="kw">return</span> p.tenantId().equals(<span class="st">"COMPAGNIE_B"</span>) ? 130.0 : 90.0;
+        };
+    }
+}</code></pre>
+
+<pre><code><span class="cm">// Sur les actions terminales :</span>
+<span class="an">@AchievesGoal</span>(description = <span class="st">"..."</span>, valueFunction = <span class="st">"autoApproveValue"</span>)
+<span class="kw">public</span> <span class="ty">ClaimDecision</span> autoApprove(...) { ... }
+
+<span class="an">@AchievesGoal</span>(description = <span class="st">"..."</span>, valueFunction = <span class="st">"amicableSettlementValue"</span>)
+<span class="kw">public</span> <span class="ty">ClaimDecision</span> proposeAmicableSettlement(...) { ... }</code></pre>
+
+  <h3>Schéma — la matrice contexte × comportement</h3>
+
+  <figure>
+    <svg viewBox="0 0 880 380" width="880">
+      <defs>
+        <marker id="arrow-v5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+        </marker>
+      </defs>
+
+      <text x="440" y="22" font-size="13" font-weight="700" fill="#0E0E1A" text-anchor="middle">
+        Le même sinistre, quatre comportements selon le contexte
+      </text>
+
+      <!-- Sinistre central -->
+      <rect x="370" y="160" width="140" height="50" rx="6" fill="#3498DB"></rect>
+      <text x="440" y="183" fill="white" text-anchor="middle" font-weight="700" font-size="13">Même ClaimReport</text>
+      <text x="440" y="200" fill="white" text-anchor="middle" font-size="10">claimedAmount: 4 200 €</text>
+
+      <!-- 4 contextes en étoile -->
+      <!-- Contexte 1 : standard (haut gauche) -->
+      <rect x="30" y="55" width="180" height="60" rx="6" fill="#27AE60" opacity="0.15" stroke="#27AE60" stroke-width="2"></rect>
+      <text x="120" y="78" font-size="11" font-weight="700" fill="#27AE60" text-anchor="middle">Contexte standard</text>
+      <text x="120" y="95" font-size="9" fill="#0E0E1A" text-anchor="middle">charge normale, budget OK,</text>
+      <text x="120" y="107" font-size="9" fill="#0E0E1A" text-anchor="middle">client standard</text>
+
+      <rect x="30" y="130" width="180" height="40" rx="4" fill="#27AE60"></rect>
+      <text x="120" y="148" font-size="11" font-weight="700" fill="white" text-anchor="middle">visionLLM → autoApprove</text>
+      <text x="120" y="162" font-size="9" fill="white" text-anchor="middle">cost=15 · score=+85</text>
+
+      <!-- Contexte 2 : pic de charge (haut droite) -->
+      <rect x="670" y="55" width="180" height="60" rx="6" fill="#F39C12" opacity="0.15" stroke="#F39C12" stroke-width="2"></rect>
+      <text x="760" y="78" font-size="11" font-weight="700" fill="#F39C12" text-anchor="middle">Pic de charge LLM</text>
+      <text x="760" y="95" font-size="9" fill="#0E0E1A" text-anchor="middle">file vision = 80 requêtes,</text>
+      <text x="760" y="107" font-size="9" fill="#0E0E1A" text-anchor="middle">visionLLM cost passe à 55</text>
+
+      <rect x="670" y="130" width="180" height="40" rx="4" fill="#F39C12"></rect>
+      <text x="760" y="148" font-size="11" font-weight="700" fill="white" text-anchor="middle">garagist → autoApprove</text>
+      <text x="760" y="162" font-size="9" fill="white" text-anchor="middle">cost=5 · score=+95</text>
+
+      <!-- Contexte 3 : client premium (bas gauche) -->
+      <rect x="30" y="245" width="180" height="60" rx="6" fill="#8E44AD" opacity="0.15" stroke="#8E44AD" stroke-width="2"></rect>
+      <text x="120" y="268" font-size="11" font-weight="700" fill="#8E44AD" text-anchor="middle">Client premium</text>
+      <text x="120" y="285" font-size="9" fill="#0E0E1A" text-anchor="middle">profile=PREMIUM,</text>
+      <text x="120" y="297" font-size="9" fill="#0E0E1A" text-anchor="middle">value autoApprove = 130</text>
+
+      <rect x="30" y="320" width="180" height="40" rx="4" fill="#8E44AD"></rect>
+      <text x="120" y="338" font-size="11" font-weight="700" fill="white" text-anchor="middle">expert → autoApprove</text>
+      <text x="120" y="352" font-size="9" fill="white" text-anchor="middle">cost=80 · score=+50</text>
+
+      <!-- Contexte 4 : compagnie B (bas droite) -->
+      <rect x="670" y="245" width="180" height="60" rx="6" fill="#16A085" opacity="0.15" stroke="#16A085" stroke-width="2"></rect>
+      <text x="760" y="268" font-size="11" font-weight="700" fill="#16A085" text-anchor="middle">Compagnie B (multi-tenant)</text>
+      <text x="760" y="285" font-size="9" fill="#0E0E1A" text-anchor="middle">tenantId=B,</text>
+      <text x="760" y="297" font-size="9" fill="#0E0E1A" text-anchor="middle">value amiable = 130</text>
+
+      <rect x="670" y="320" width="180" height="40" rx="4" fill="#16A085"></rect>
+      <text x="760" y="338" font-size="11" font-weight="700" fill="white" text-anchor="middle">amiable settlement</text>
+      <text x="760" y="352" font-size="9" fill="white" text-anchor="middle">cost=26 · score=+104</text>
+
+      <!-- Flèches du sinistre vers les 4 contextes -->
+      <g stroke="#0E0E1A" stroke-width="1.2" fill="none">
+        <line x1="370" y1="170" x2="220" y2="150" marker-end="url(#arrow-v5)"></line>
+        <line x1="510" y1="170" x2="660" y2="150" marker-end="url(#arrow-v5)"></line>
+        <line x1="370" y1="200" x2="220" y2="340" marker-end="url(#arrow-v5)"></line>
+        <line x1="510" y1="200" x2="660" y2="340" marker-end="url(#arrow-v5)"></line>
+      </g>
+
+      <!-- Labels de transition -->
+      <g font-family="Helvetica" font-size="9" font-style="italic" fill="#6B6B7C">
+        <text x="295" y="155" text-anchor="middle">CostFunction normale</text>
+        <text x="585" y="155" text-anchor="middle">visionLLM trop cher</text>
+        <text x="295" y="265" text-anchor="middle">value boost premium</text>
+        <text x="585" y="265" text-anchor="middle">value boost amiable</text>
+      </g>
+    </svg>
+    <figcaption>Schéma — Le même sinistre matériel à 4 200 € produit quatre
+      comportements différents selon le contexte d'exécution. La
+      <code>CostFunction</code> et les <code>valueFunction</code> sont seules
+      responsables de cette adaptation.</figcaption>
+  </figure>
+
+  <div class="key-fact">
+    La V5 démontre que GOAP supporte une vraie <strong>régulation homéostatique</strong> :
+    l'agent s'adapte continûment à son environnement sans logique de routage
+    impérative. La complexité est concentrée dans deux composants isolés
+    (<code class="inline">CostFunction</code>, <code class="inline">valueFunction</code>),
+    le code métier reste inchangé.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>16 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : SCÉNARIOS V5
+     ==================================================================== -->
+<section class="slide">
+  <h2><span class="num">08</span>Version 5 — Trois scénarios d'illustration</h2>
+
+  <p class="lead">
+    Trois cas montrent comment les coûts et values dynamiques produisent des
+    comportements radicalement différents pour des sinistres similaires soumis
+    au même agent V5. Aucune ligne de logique métier n'est modifiée entre les
+    cas — seul le contexte d'exécution change.
+  </p>
+
+  <div class="scenario-header" style="background: var(--warning);">
+    SCÉNARIO V5-A — Pic de charge sur le modèle vision
+  </div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 6 800 €,
+              photoUrls: 4 photos }
+
+État système :
+  visionMetrics.queueDepth() = 80
+  → cost(visionLLM) = 15 + 40 = 55
+
+Plan candidat 1 (avant pic) :
+  → visionLLM (15) → seniorReview
+  Coût : 39 · Score : +21
+
+Plan candidat 2 (pendant pic) :
+  → garagist (5) → seniorReview
+  Coût : 29 · Score : +31  ← retenu
+
+Bascule : visionLLM → garagist
+sans aucune modification de code</code></pre>
+    </div>
+    <div>
+      <h4>Observation — protection automatique des ressources</h4>
+      <p style="font-size: 0.9rem;">Quand la file d'attente du modèle vision dépasse
+      50 requêtes, son coût gonfle linéairement. Au-delà d'un certain seuil, le
+      garage devient plus économique malgré sa précision moindre.</p>
+      <p style="font-size: 0.9rem;">L'agent <strong>protège implicitement les
+      ressources saturées</strong> — comme un load balancer le ferait, mais au
+      niveau métier. Quand la charge redescend, le comportement revient
+      naturellement à l'utilisation du vision LLM.</p>
+      <p style="font-size: 0.9rem;">Pattern intéressant : on peut combiner cette
+      logique avec un <em>circuit breaker</em> Resilience4j pour une dégradation
+      gracieuse à plusieurs niveaux.</p>
+    </div>
+  </div>
+
+  <div class="scenario-header" style="background: var(--purple);">
+    SCÉNARIO V5-B — Client premium, expert humain mobilisé
+  </div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport { claimedAmount: 6 800 €,
+              clientId: "CLI-9988" }
+
+ClientProfile :
+  isPremium     = TRUE
+  contractTier  = GOLD
+
+Coûts ajustés :
+  cost(heuristic) = 0.5  (premium)
+  cost(autres)    = inchangés
+
+Values ajustées :
+  value(autoApprove) = 100 + 30 = 130
+  (boost premium pour résolution rapide)
+
+Plan retenu :
+  → heuristic (0.5) → refineGarage (5)
+  → detectFraud (4) → autoApprove (2)
+  Coût : 11.5 · Value : 130
+  Score : +118.5</code></pre>
+    </div>
+    <div>
+      <h4>Observation — différenciation par le profil</h4>
+      <p style="font-size: 0.9rem;">Pour un client premium, on combine deux effets :
+      l'heuristique est <strong>moins coûteuse</strong> (priorité au traitement
+      rapide) et la résolution complète a <strong>plus de valeur</strong>
+      (préserver la satisfaction client).</p>
+      <p style="font-size: 0.9rem;">Le score est tellement élevé que l'agent va
+      privilégier des plans plus longs avec raffinement automatique, là où un
+      client standard aurait subi une simple résolution sans raffinement.</p>
+      <p style="font-size: 0.9rem;">En miroir : un client à risque pourrait avoir
+      des values diminuées, ce qui pousserait l'agent à privilégier des chemins
+      plus courts et moins coûteux.</p>
+    </div>
+  </div>
+
+  <div class="scenario-header" style="background: var(--keyrus-cyan);">
+    SCÉNARIO V5-C — Multi-tenant : compagnie B privilégie l'amiable
+  </div>
+
+  <div class="grid-2">
+    <div>
+<pre style="font-size: 0.72rem;"><code>ClaimReport {
+  description: "Avec tiers coopératif",
+  claimedAmount: 4 200 €,
+  clientId: "TENANT-B-12345"
+}
+
+Profile :
+  tenantId = "COMPAGNIE_B"
+
+Values ajustées :
+  value(autoApprove)  = 100 (inchangé)
+  value(amicableSet)  = 90 → 130
+
+Plans candidats :
+  → autoApprove
+    Coût : 18 · Value : 100 · Score : +82
+
+  → proposeAmicableSettlement
+    Coût : 26 · Value : 130 · Score : +104
+
+Plan retenu : amiable ✓
+(alors qu'autoApprove gagnait en V4)</code></pre>
+    </div>
+    <div>
+      <h4>Observation — multi-tenant sans duplication de code</h4>
+      <p style="font-size: 0.9rem;">Le même agent, exposé à des compagnies différentes,
+      adopte des comportements différents <strong>sans aucune duplication</strong>.
+      Compagnie A garde le comportement V4 par défaut. Compagnie B privilégie
+      l'amiable. Compagnie C (non illustrée) pourrait privilégier la revue humaine
+      systématique en augmentant la value de <code class="inline">seniorReview</code>.</p>
+      <p style="font-size: 0.9rem;">Le code de l'agent est <strong>strictement
+      identique</strong> entre tous les tenants. Seule la configuration de la
+      <code class="inline">valueFunction</code> diffère. Maintenance simplifiée,
+      politique business externalisée dans des données.</p>
+      <p style="font-size: 0.9rem;">Cette propriété est précieuse pour un éditeur
+      de produit SaaS qui doit gérer plusieurs clients aux exigences contradictoires.</p>
+    </div>
+  </div>
+
+  <div class="key-fact">
+    La V5 atteint le sommet de ce que GOAP permet : un agent qui adapte continûment
+    son comportement à la charge système, au profil utilisateur, aux contraintes
+    contractuelles, sans qu'aucune ligne de logique métier ne soit modifiée. Les
+    <strong>politiques d'exécution</strong> (CostFunction, valueFunction) sont
+    isolées des <strong>règles métier</strong> (actions, conditions, goals) — un
+    découplage fondamental pour la maintenabilité long terme.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>17 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE : VALUE DES GOALS
+     ==================================================================== -->
+<section class="slide" id="value">
+  <h2><span class="num">09</span>La valeur des goals expliquée</h2>
+
+  <p class="lead">
+    La <code class="inline">value</code> d'un goal est la contrepartie du coût dans
+    la fonction objectif du planificateur. Elle permet d'arbitrer entre plusieurs
+    goals concurrents lorsqu'ils sont simultanément atteignables.
+  </p>
+
+  <pre><code>score_du_plan = value_du_goal − coût_total_du_chemin</code></pre>
+
+  <h3>Visualisation du calcul de score</h3>
+
+  <figure>
+    <svg viewBox="0 0 620 280" width="620">
+      <!-- Axes -->
+      <line x1="60" y1="230" x2="60" y2="40" stroke="#0E0E1A" stroke-width="1"></line>
+      <line x1="60" y1="230" x2="580" y2="230" stroke="#0E0E1A" stroke-width="1"></line>
+
+      <!-- Graduations -->
+      <g font-family="Helvetica" font-size="9" fill="#6B6B7C">
+        <line x1="55" y1="230" x2="60" y2="230"></line>
+        <text x="50" y="234" text-anchor="end">0</text>
+        <line x1="55" y1="190" x2="60" y2="190"></line>
+        <text x="50" y="194" text-anchor="end">25</text>
+        <line x1="55" y1="150" x2="60" y2="150"></line>
+        <text x="50" y="154" text-anchor="end">50</text>
+        <line x1="55" y1="110" x2="60" y2="110"></line>
+        <text x="50" y="114" text-anchor="end">75</text>
+        <line x1="55" y1="70" x2="60" y2="70"></line>
+        <text x="50" y="74" text-anchor="end">100</text>
+      </g>
+
+      <!-- Plan 1 : autoApprove (value=100, cost=10, score=90) -->
+      <g>
+        <!-- Barre value verte -->
+        <rect x="100" y="70" width="55" height="160" fill="#27AE60"></rect>
+        <text x="127" y="63" font-size="10" font-weight="700" fill="#27AE60" text-anchor="middle">value=100</text>
+        <!-- Barre coût rouge par-dessus (du haut vers le bas) -->
+        <rect x="160" y="70" width="55" height="16" fill="#C0392B" opacity="0.35" stroke="#C0392B"></rect>
+        <text x="188" y="60" font-size="10" fill="#C0392B" text-anchor="middle">cost=10</text>
+        <!-- Labels -->
+        <text x="155" y="252" font-size="11" font-weight="700" fill="#0E0E1A" text-anchor="middle">autoApprove</text>
+        <text x="155" y="268" font-size="11" font-weight="700" fill="#27AE60" text-anchor="middle">score = +90</text>
+      </g>
+
+      <!-- Plan 2 : seniorReview (value=60, cost=42, score=18) -->
+      <g>
+        <rect x="260" y="150" width="55" height="80" fill="#F39C12"></rect>
+        <text x="287" y="143" font-size="10" font-weight="700" fill="#F39C12" text-anchor="middle">value=60</text>
+        <rect x="320" y="150" width="55" height="68" fill="#C0392B" opacity="0.35" stroke="#C0392B"></rect>
+        <text x="348" y="140" font-size="10" fill="#C0392B" text-anchor="middle">cost=42</text>
+        <text x="315" y="252" font-size="11" font-weight="700" fill="#0E0E1A" text-anchor="middle">seniorReview</text>
+        <text x="315" y="268" font-size="11" font-weight="700" fill="#F39C12" text-anchor="middle">score = +18</text>
+      </g>
+
+      <!-- Plan 3 : fraudEscalate (value=40, cost=35, score=5) -->
+      <g>
+        <rect x="420" y="190" width="55" height="40" fill="#C0392B"></rect>
+        <text x="447" y="183" font-size="10" font-weight="700" fill="#C0392B" text-anchor="middle">value=40</text>
+        <rect x="480" y="190" width="55" height="56" fill="#C0392B" opacity="0.35" stroke="#C0392B"></rect>
+        <text x="508" y="180" font-size="10" fill="#C0392B" text-anchor="middle">cost=35</text>
+        <text x="475" y="252" font-size="11" font-weight="700" fill="#0E0E1A" text-anchor="middle">fraudEscalate</text>
+        <text x="475" y="268" font-size="11" font-weight="700" fill="#C0392B" text-anchor="middle">score = +5</text>
+      </g>
+
+      <!-- Légende -->
+      <g font-family="Helvetica" font-size="9" fill="#0E0E1A">
+        <rect x="420" y="20" width="12" height="12" fill="#27AE60"></rect>
+        <text x="438" y="30">value (bénéfice)</text>
+        <rect x="420" y="35" width="12" height="12" fill="#C0392B" opacity="0.35" stroke="#C0392B"></rect>
+        <text x="438" y="45">coût (prélèvement)</text>
+      </g>
+    </svg>
+    <figcaption>Schéma 6 — Calcul du score pour trois plans candidats. Le plan
+      <code>autoApprove</code> domine avec un score de +90 parce qu'il combine une
+      value élevée (résolution complète) avec un coût modéré.</figcaption>
+  </figure>
+
+  <h3>Quand la value compte — matrice de décision</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Situation</th>
+        <th>Value utile</th>
+        <th>Pourquoi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Un seul goal, un seul chemin</td>
+        <td class="lose">Non</td>
+        <td>Score identique pour tous les plans — la value ne décale qu'une constante.</td>
+      </tr>
+      <tr>
+        <td>Un seul goal, plusieurs chemins</td>
+        <td class="lose">Non</td>
+        <td>Value identique pour tous les chemins — le choix se fait sur le coût seul.</td>
+      </tr>
+      <tr>
+        <td>Plusieurs goals, préconditions exclusives</td>
+        <td class="lose">Non</td>
+        <td>Une seule option éligible à la fois — le planificateur n'arbitre pas.</td>
+      </tr>
+      <tr>
+        <td><strong>Plusieurs goals simultanément éligibles</strong></td>
+        <td class="win">Oui</td>
+        <td>La value arbitre entre eux selon les priorités business.</td>
+      </tr>
+      <tr>
+        <td><strong>Plusieurs goals + coûts dynamiques</strong></td>
+        <td class="win">Oui</td>
+        <td>Basculements automatiques de stratégie selon le contexte runtime.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="key-fact">
+    À chaque <code class="inline">@AchievesGoal</code>, se poser la question :
+    "plusieurs goals peuvent-ils être atteints simultanément dans ce contexte ?"
+    Si oui, les values vont arbitrer. Sinon, elles sont décoratives et il est
+    préférable de les laisser à 0 pour éviter toute confusion.
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>18 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 12 : COÛTS DYNAMIQUES + ARCHI
+     ==================================================================== -->
+<section class="slide" id="dynamic">
+  <h2><span class="num">10</span>Pièges à éviter et architecture de production</h2>
+
+  <p class="lead">
+    Les coûts dynamiques et leurs cas d'usage ont été détaillés dans la version 5.
+    Cette slide couvre les <strong>pièges classiques</strong> à éviter lors de la
+    modélisation d'un agent GOAP, ainsi que l'<strong>architecture de production</strong>
+    type pour déployer un agent Embabel.
+  </p>
+
+  <h3>Pièges à éviter</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Piège</th>
+        <th>Correction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Coûts sur des actions obligatoires</td>
+        <td>Placer les coûts différenciants uniquement sur les actions qui ont des alternatives.</td>
+      </tr>
+      <tr>
+        <td>Préconditions exclusives + values différentes</td>
+        <td>Soit assouplir les préconditions, soit mettre <code class="inline">value = 0</code>.</td>
+      </tr>
+      <tr>
+        <td>Actions trop fines (plans de 30+ étapes)</td>
+        <td>Regrouper en actions métier "grosses". GOAP brille entre 5 et 15 actions par agent.</td>
+      </tr>
+      <tr>
+        <td>Types de sortie trop spécifiques</td>
+        <td>Créer des types génériques partagés pour rendre les actions interchangeables.</td>
+      </tr>
+      <tr>
+        <td>Boucles dans le workflow</td>
+        <td>Utiliser <code class="inline">@State</code> (state machine) pour les portions bouclées.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Architecture de production complète</h3>
+
+  <figure>
+    <svg viewBox="0 0 720 360" width="720">
+      <defs>
+        <marker id="arrow-archi" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E1A"></path>
+        </marker>
+      </defs>
+
+      <!-- Couche 1 : exposition -->
+      <rect x="40" y="20" width="620" height="40" rx="5" fill="#3498DB"></rect>
+      <text x="350" y="44" font-size="12" font-weight="700" fill="white" text-anchor="middle">
+        REST / WebSocket / MCP Server — Spring Boot + Spring Security (OAuth2, JWT, SAML)
+      </text>
+
+      <!-- Flèche -->
+      <line x1="350" y1="60" x2="350" y2="80" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-archi)"></line>
+
+      <!-- Couche 2 : Agent Embabel -->
+      <rect x="40" y="85" width="620" height="90" rx="5" fill="#FFF0F3" stroke="#DA0127" stroke-width="2"></rect>
+      <text x="350" y="105" font-size="13" font-weight="700" fill="#DA0127" text-anchor="middle">
+        Agent Embabel (@Agent)
+      </text>
+
+      <rect x="60" y="115" width="180" height="50" rx="5" fill="#FC990F"></rect>
+      <text x="150" y="137" font-size="11" font-weight="700" fill="white" text-anchor="middle">Planificateur GOAP</text>
+      <text x="150" y="153" font-size="10" fill="white" text-anchor="middle">(A*, boucle OODA)</text>
+
+      <rect x="270" y="115" width="180" height="50" rx="5" fill="#16A085"></rect>
+      <text x="360" y="137" font-size="11" font-weight="700" fill="white" text-anchor="middle">Actions (@Action)</text>
+      <text x="360" y="153" font-size="10" fill="white" text-anchor="middle">Beans Spring typés</text>
+
+      <rect x="480" y="115" width="180" height="50" rx="5" fill="#8E44AD"></rect>
+      <text x="570" y="137" font-size="11" font-weight="700" fill="white" text-anchor="middle">Blackboard</text>
+      <text x="570" y="153" font-size="10" fill="white" text-anchor="middle">mémoire typée partagée</text>
+
+      <!-- Flèche -->
+      <line x1="350" y1="175" x2="350" y2="195" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-archi)"></line>
+
+      <!-- Couche 3 : Services -->
+      <rect x="40" y="200" width="620" height="75" rx="5" fill="#F7F7FA" stroke="#0E0E1A"></rect>
+      <text x="350" y="220" font-size="12" font-weight="700" fill="#0E0E1A" text-anchor="middle">
+        Services métier (@Component, @Service)
+      </text>
+
+      <g font-family="Helvetica" font-size="10" font-weight="600">
+        <rect x="60" y="230" width="130" height="35" rx="4" fill="#3498DB"></rect>
+        <text x="125" y="247" fill="white" text-anchor="middle">Spring AI</text>
+        <text x="125" y="260" fill="white" text-anchor="middle" font-weight="400" font-size="9">ChatClient</text>
+
+        <rect x="210" y="230" width="130" height="35" rx="4" fill="#27AE60"></rect>
+        <text x="275" y="247" fill="white" text-anchor="middle">Spring Data</text>
+        <text x="275" y="260" fill="white" text-anchor="middle" font-weight="400" font-size="9">JPA / JDBC</text>
+
+        <rect x="360" y="230" width="130" height="35" rx="4" fill="#FC990F"></rect>
+        <text x="425" y="247" fill="white" text-anchor="middle">MCP Clients</text>
+        <text x="425" y="260" fill="white" text-anchor="middle" font-weight="400" font-size="9">tools externes</text>
+
+        <rect x="510" y="230" width="130" height="35" rx="4" fill="#16A085"></rect>
+        <text x="575" y="247" fill="white" text-anchor="middle">HTTP Clients</text>
+        <text x="575" y="260" fill="white" text-anchor="middle" font-weight="400" font-size="9">API SI clients</text>
+      </g>
+
+      <!-- Flèche -->
+      <line x1="350" y1="275" x2="350" y2="290" stroke="#0E0E1A" stroke-width="1.5" marker-end="url(#arrow-archi)"></line>
+
+      <!-- Couche 4 : Ressources externes -->
+      <rect x="40" y="295" width="620" height="55" rx="5" fill="#0E0E1A"></rect>
+      <text x="350" y="315" font-size="12" font-weight="700" fill="white" text-anchor="middle">
+        Ressources externes
+      </text>
+      <text x="350" y="335" font-size="10" fill="#FFC74F" text-anchor="middle">
+        LLMs (Claude, GPT, Gemini) · PostgreSQL · API clients · Vector stores (PGVector, Qdrant)
+      </text>
+    </svg>
+    <figcaption>Schéma 8 — Architecture complète d'un agent Embabel en production.
+      Chaque couche est native dans l'écosystème Spring Boot avec observabilité
+      Micrometer + OpenTelemetry intégrée.</figcaption>
+  </figure>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>19 / 20</span>
+  </footer>
+</section>
+
+<!-- ====================================================================
+     SLIDE 13 : CONCLUSION
+     ==================================================================== -->
+<section class="slide" id="conclusion">
+  <h2><span class="num">11</span>Conclusion — Pourquoi Embabel pour l'IA agentic</h2>
+
+  <p class="lead">
+    Embabel propose une approche structurellement différente des frameworks agentic
+    actuels : la planification déterministe GOAP héritée du jeu vidéo, appliquée à
+    l'orchestration d'agents LLM. L'agent devient une fonction qui combine
+    intelligemment des actions métier typées vers un goal défini.
+  </p>
+
+  <h3>Les cinq avantages décisifs</h3>
+
+  <div class="grid-2">
+    <div class="card" style="border-top-color: var(--success);">
+      <h5 style="color: var(--success);">1. Agents explicables</h5>
+      <p>Le plan est calculé avant exécution et peut être logué, audité, validé.
+      Différenciant contractuel pour les secteurs régulés (banque, assurance,
+      santé, public).</p>
+    </div>
+
+    <div class="card" style="border-top-color: var(--blue);">
+      <h5 style="color: var(--blue);">2. Évolutivité structurelle</h5>
+      <p>Ajouter une action consiste à créer un nouveau bean. Aucune arête de
+      graphe à modifier. Pour des livraisons pluriannuelles, la différence se
+      compte en semaines économisées.</p>
+    </div>
+
+    <div class="card" style="border-top-color: var(--keyrus-orange);">
+      <h5 style="color: var(--keyrus-orange);">3. Adaptativité gratuite</h5>
+      <p>Les coûts dynamiques permettent à l'agent de changer de stratégie selon
+      la charge système, le budget, l'heure. Régulation opérationnelle native
+      sans code impératif de routage.</p>
+    </div>
+
+    <div class="card" style="border-top-color: var(--purple);">
+      <h5 style="color: var(--purple);">4. Type-safety JVM</h5>
+      <p>Records Java typés, refactoring IntelliJ, compile-time checks. Pour des
+      applications vivant 5 ans, la dette technique cumulée est maîtrisée et
+      les régressions évitées en amont.</p>
+    </div>
+
+    <div class="card" style="border-top-color: var(--keyrus-red); grid-column: 1 / -1;">
+      <h5 style="color: var(--keyrus-red);">5. Intégration Spring Boot native</h5>
+      <p>90 % de l'infrastructure d'entreprise livrée dans la boîte : observabilité
+      Micrometer + OpenTelemetry, sécurité OAuth2 / mTLS, persistance Spring Data,
+      messaging, scheduling, health checks, actuator. Pas d'assemblage manuel de
+      12 bibliothèques. Un prototype devient une application d'entreprise sans mois
+      de "productionification".</p>
+    </div>
+  </div>
+
+  <h3>Positionnement — les avantages décisifs de GOAP</h3>
+
+  <div class="grid-2">
+    <div class="card" style="border-top-color: var(--success); background: #E8F5E9;">
+      <h5 style="color: var(--success);">Ce que GOAP apporte</h5>
+      <ul style="margin: 0.5rem 0 0; font-size: 0.92rem;">
+        <li><strong>Plans calculés, non dessinés</strong> — l'algorithme compose le chemin optimal</li>
+        <li><strong>Ajout d'actions sans impact</strong> sur les actions existantes</li>
+        <li><strong>Re-planification automatique</strong> quand une condition bascule</li>
+        <li><strong>Arbitrage économique</strong> via les coûts statiques et dynamiques</li>
+        <li><strong>Plan auditable</strong> avant exécution — réponse à l'exigence d'explicabilité</li>
+        <li><strong>Parallélisation implicite</strong> des actions indépendantes</li>
+        <li><strong>Stratégies adaptatives</strong> émergentes (pattern "essayer puis raffiner")</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-top-color: var(--warning); background: #FFF3E0;">
+      <h5 style="color: var(--warning);">Les contre-indications</h5>
+      <ul style="margin: 0.5rem 0 0; font-size: 0.92rem;">
+        <li>Workflows strictement linéaires sans alternative — un chaînage classique suffit</li>
+        <li>Moins de 4-5 actions par agent — l'overhead cognitif n'est pas justifié</li>
+        <li>Prédominance de boucles — privilégier le mode <code class="inline">@State</code></li>
+        <li>Exploration sans goal précis — privilégier le mode Utility AI</li>
+        <li>Équipe non formée aux patterns déclaratifs — formation préalable nécessaire</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Synthèse</h3>
+
+  <div class="key-fact">
+    Embabel propose la première vision cohérente d'un framework agentic fondé sur
+    la planification déterministe GOAP au-dessus de la JVM. Il combine trois
+    ingrédients complémentaires : la rigueur d'ingénierie de l'écosystème Spring,
+    l'intelligence adaptative des LLM, et la planification par pathfinding héritée
+    de STRIPS et popularisée par le jeu vidéo. Le retour sur investissement est
+    significatif pour les applications qui évoluent sur plusieurs années.
+  </div>
+
+  <p>
+    La promesse "AI for your AI" décrit le mécanisme au cœur du framework :
+    utiliser une IA classique (A*, déterministe, gratuite, explicable) pour
+    piloter l'IA générative (non-déterministe, coûteuse, puissante). Cette
+    réconciliation de deux générations d'IA répond précisément aux exigences des
+    applications d'entreprise modernes.
+  </p>
+
+  <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--keyrus-red);">
+    <p style="text-align: center; color: var(--keyrus-grey); font-size: 0.9rem; margin: 0;">
+      <strong style="color: var(--keyrus-red);">Guillaume Ettori</strong> ·
+      Architecte · Tech Lead Digital / Gen AI · Keyrus ·
+      Avril 2026
+    </p>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="brand">keyrus</span>
+    <span>GOAP dans Embabel · Guillaume Ettori</span>
+    <span>20 / 20</span>
+  </footer>
+</section>
+
+
+
+</body></html>
