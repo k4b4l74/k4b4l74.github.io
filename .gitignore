@@ -203,3 +203,5 @@ src/main/frontend/generated/
 
 # Vaadin generated Vite config
 vite.generated.ts
+
+tools/.settings
