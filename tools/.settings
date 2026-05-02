@@ -1,0 +1,19 @@
+# Generated from tools/.settings.template using IntelliJ Maven command line
+
+MAVEN_CMD=C:\Users\Guillaume.Ettori\AppData\Local\Programs\IntelliJ IDEA Community Edition\plugins\maven\lib\maven3\bin\mvn.cmd
+IDEA_VERSION=2025.3.2
+MAVEN_EXT_CLASS_PATH=C:\Users\Guillaume.Ettori\AppData\Local\Programs\IntelliJ IDEA Community Edition\plugins\maven\lib\maven-event-listener.jar
+MAVEN_REPO_LOCAL=C:\Users\Guillaume.Ettori\.m2\repository
+JAVA_HOME=C:\Users\Guillaume.Ettori\.jdks\temurin-21.0.6
+WSL_DISTRO=Ubuntu
+POSTGRES_CONTAINER=forge-postgres
+POSTGRES_USER=pgvector_user
+POSTGRES_PASSWORD=pgvector_password
+POSTGRES_DB=pgvector_db
+NEO4J_CONTAINER=forge-neo4j
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=aifwk123
+NEO4J_DATABASE=neo4j
+JANSI_PASSTHROUGH=true
+STYLE_COLOR=always
+MAVEN_DEFAULT_ARGS=clean test

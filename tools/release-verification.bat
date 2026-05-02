@@ -1,0 +1,6 @@
+@echo off
+setlocal
+set SCRIPT_DIR=%~dp0
+
+call "%SCRIPT_DIR%mvn.bat" -Dtest=PerformanceVerificationBenchmarkTest,SynchronizeCodeRunEventsUseCaseTest,ImportProjectBundleUseCaseTest,ExportProjectBundleUseCaseTest,ConfiguredTextRedactionAdapterTest,AdvanceProjectPhaseUseCaseTest,OverrideProjectPhaseGateUseCaseTest,EnforceBudgetPolicyUseCaseTest test
+endlocal

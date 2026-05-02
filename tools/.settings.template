@@ -1,0 +1,40 @@
+# Copy this file to tools/.settings and fill values.
+# Paths with spaces should be quoted, e.g. "C:\Program Files\..."
+
+# Maven executable to use (IntelliJ bundled mvn.cmd, or mvn.cmd on PATH)
+MAVEN_CMD=
+
+# IntelliJ-provided extras (optional)
+IDEA_VERSION=
+MAVEN_EXT_CLASS_PATH=
+
+# Local Maven repository (optional; example: C:\Users\your.name\.m2\repository)
+MAVEN_REPO_LOCAL=
+
+# JDK used to run Maven (matches IntelliJ "Runner" JDK)
+JAVA_HOME=
+
+# WSL distro name (optional; if empty, the first distro from `wsl -l -q` is used)
+WSL_DISTRO=
+
+# WSL executable (optional; default is %SystemRoot%\\System32\\wsl.exe)
+WSL_EXE=
+
+# Local PostgreSQL (Docker/WSL)
+POSTGRES_CONTAINER=forge-postgres
+POSTGRES_USER=pgvector_user
+POSTGRES_PASSWORD=pgvector_password
+POSTGRES_DB=pgvector_db
+
+# Local Neo4j (Docker/WSL)
+NEO4J_CONTAINER=forge-neo4j
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=forge123
+NEO4J_DATABASE=neo4j
+
+# Optional JVM/system props
+JANSI_PASSTHROUGH=true
+STYLE_COLOR=always
+
+# Optional default args when none are provided
+MAVEN_DEFAULT_ARGS=clean test
